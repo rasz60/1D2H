@@ -1,0 +1,34 @@
+# local port ??
+server:
+    port: 8079
+#Spring ??
+spring:
+    # DB ??
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        url: jdbc:postgresql://localhost:5432/1d2h
+        username: 1d2hAPP
+        password: 1d2hAPPLICATION!@
+    # JPA ??
+    jpa:
+        open-in-view: false
+        show_sql: true
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                format_sql: true
+                highlight_sql: true
+                use_sql_comments: true
+    # devtools ??            
+    devtools:
+        restart:
+            additional-paths: src/main/resources/static
+        livereload:
+            enabled: true
+    # log ??
+    logging:
+        level:
+            org:
+                springframework:
+                    security: DEBUG
