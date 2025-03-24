@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: 1d2hAPP
+      POSTGRES_PASSWORD: 1d2hAPPLICATION!@
+      POSTGRES_DB: 1d2h
+    ports:
+      - "5432:5432"
