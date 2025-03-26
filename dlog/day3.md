@@ -12,6 +12,7 @@
 - JwtUtil.java : jwt 토큰 생성, 검증, request 내에 token 값으로 User 조회 등 JWT Token 관리 기능 구현
 - filter.JwtFilter.java : HttpSecrity로 설정되어 permit 체크가 필요한 api 호출 시 실행할 filter servlet class
 - filter.JwtAuthenticationToken.java : SecurityContextHolder에 현재 JWT token으로 검증된 사용자 정보를 저장
+- .env, Run Configuration에 속성 값 추가 : JWT_SECRET_KEY, JWT_EXPIRATION_TIME
 
 #### 4. Security Configuration 추가
 - com.raszsixt._d2h.security.config 하위 클래스 추가
