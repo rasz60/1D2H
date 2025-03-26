@@ -53,11 +53,30 @@
     - 1d2hDB.1d2h : CREATE, INSERT, SELECT, UPDATE, DELETE, EXECUTE
 
 #### 2. DB 연결 속성 값 변경
-- RUN Configurations, .env 변수 추가 (POSTGRE_SQL_DATABASE, POSTGRE_SQL_SCHEMA)
+- RUN Configurations, .env 변수 추가 (POSTGRES_DATABASE, POSTGRES_SCHEMA)
 - application.yml 수정
-  - spring.datasource.url : ${POSTGRE_SQL_DATABASE}?currentSchema=${POSTGRE_SQL_SCHEMA}
+  - spring.datasource.url : ${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
 
 #### 3. Entity 설정 (USER)
 - Entity 클래스 작성 (com.raszsixt._d2h.entity.User)
 - JPA를 통해 PostgreSQL Table 생성 확인 완료
 
+
+## Day3. Spring Security / JWT 설정
+
+#### 1. JWT 라이브러리 추가
+- build.gradle : jwt, bCrypt 라이브러리 추가
+
+#### 2. User Entity, Repository
+- Entity : UserDetails implements 받는 클래스로 구현
+- UserRepository 신규 생성
+
+#### 3. JWT Util, Filter, configuration, Token 클래스 추가
+- 
+
+#### 4. Controller 추가
+- /api/auth/signup, /api/auth/login API Controller 추가
+
+#### 5. Postman 테스트
+- /api/auth/signup : 호출 성공, Not Null 변수로 인해 insert exception
+- /api/auth/login : 호출 성공, return 성공

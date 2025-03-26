@@ -6,7 +6,7 @@ spring:
     # DB 설정
     datasource:
         driver-class-name: org.postgresql.Driver
-        url: jdbc:postgresql://localhost:5432/${POSTGRE_SQL_DATABASE}?currentSchema=${POSTGRE_SQL_SCHEMA}
+        url: jdbc:postgresql://localhost:5432/${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
         username: ${POSTGRES_USER}
         password: ${POSTGRES_PASSWORD}
     # JPA 설정
