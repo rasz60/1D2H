@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.security.filter;
 
+import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,59 +16,44 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.util.Collections;
 
 public class JwtFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final String secretKey = "1d2h_secret_token_very_secure_long_key_8079";
+    private final JwtUtil jwtUtil;
+
+    public JwtFilter(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil; // jwtUtil 생성자 주입
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
-        String token = resolveToken(req);
+        String token = resolveToken(req); // request에서 token 추출
 
-        if ( token != null && validateToken(token) ) {
-            UserDetails userDetails = getUserFromToken(token);
+        if ( token != null && jwtUtil.validateToken(token) ) { // token 검증 성공 시
+            UserDetails userDetails = getUserFromToken(token); // token으로 조회된 User 객체
             SecurityContextHolder.getContext().setAuthentication(
-                    new JwtAuthenticationToken(userDetails, token, userDetails.getAuthorities())
+                    new JwtAuthenticationToken(userDetails, token, userDetails.getAuthorities()) // JWT 토큰 생성
             );
         }
-
         chain.doFilter(req, res);
     }
 
     // request에 포함된 token 추출
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if ( bearerToken != null && bearerToken.startsWith("Bearer ") ) {
-            return bearerToken.substring(7);
+        String bearerToken = request.getHeader("Authorization"); // Authoriztion Header 추출
+        if ( bearerToken != null && bearerToken.startsWith("Bearer ") ) { // Header에 Authorization이 있고, Bearer로 시작할 때
+            return bearerToken.substring(7); // Bearer 이 후로 온 값 추출
         }
         return null;
     }
 
-    // token 검증
-    private boolean validateToken(String token) {
-        try {
-            getClaims(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    //
-    private Claims getClaims(String token) {
-        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-    }
-
     //
     private UserDetails getUserFromToken(String token) {
-        Claims claims = getClaims(token);
-        String userId = claims.getSubject();
-        return new User(userId, "", Collections.emptyList());
+        Claims claims = jwtUtil.getClaims(token); // token에 해당되는 claims 객체
+        String userId = claims.getSubject(); // claims 객체에 포함된 userId
+        return new User(userId, "", Collections.emptyList()); // User 객체 리턴
     }
 }
