@@ -5,6 +5,7 @@ import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -19,14 +20,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
-
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    public UserController(UserRepository userRepository, JwtUtil jwtUtil) {
+    public UserController(UserRepository userRepository, JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 

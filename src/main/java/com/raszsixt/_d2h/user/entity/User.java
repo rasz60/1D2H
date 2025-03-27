@@ -52,6 +52,9 @@ public class User implements UserDetails {
     @Column(columnDefinition="INT DEFAULT 1",nullable=false)
     private int userLevel;
 
+    @Column(columnDefinition="VAHRCHAR(100)", nullable = false)
+    private String userRole;
+
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime signInDate;
 

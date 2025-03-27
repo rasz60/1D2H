@@ -1,4 +1,4 @@
-## Day3. Spring Security / JWT 설정
+## Day3. Spring Security / JWT 설정 - 1
 
 #### 1. JWT 라이브러리 추가
 - build.gradle : jwt, bCrypt 라이브러리 추가

@@ -1,13 +1,16 @@
 package com.raszsixt._d2h.security;
 
+import com.raszsixt._d2h.user.entity.User;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
 
 @Component
@@ -41,9 +44,17 @@ public class JwtUtil {
             return false;
         }
     }
+    
+    // token에 담긴 claims 객체에서 userId 조회
+    public String getUserIdFromToken(String token) {
+        Claims claims = getClaims(token); // token에 해당되는 claims 객체
+        return claims.getSubject(); // claims 객체에 포함된 userId
+    }
+
     // jwt token parsing 하여 claims 객체 리턴
     public Claims getClaims(String token) {
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)); // HMAC-SHA로 SECRET_KEY Byte 배열을 인코딩
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody(); // token 값을 key와 jwt parser로 확인 후 jwt claims 객체의 payload 리턴
     }
+
 }

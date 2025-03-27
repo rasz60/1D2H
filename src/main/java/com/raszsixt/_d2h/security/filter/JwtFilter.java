@@ -2,43 +2,38 @@ package com.raszsixt._d2h.security.filter;
 
 import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.user.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
-public class JwtFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final UserDetailsService userDetailsService;
 
-    public JwtFilter(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil; // jwtUtil 생성자 주입
+    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) { // 생성자 주입
+        this.jwtUtil = jwtUtil;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse res = (HttpServletResponse) response;
-        String token = resolveToken(req); // request에서 token 추출
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String token = resolveToken(request);
         if ( token != null && jwtUtil.validateToken(token) ) { // token 검증 성공 시
-            UserDetails userDetails = getUserFromToken(token); // token으로 조회된 User 객체
+            String userId = jwtUtil.getUserIdFromToken(token);
+            User user = (User) userDetailsService.loadUserByUsername(userId);
             SecurityContextHolder.getContext().setAuthentication(
-                    new JwtAuthenticationToken(userDetails, token, userDetails.getAuthorities()) // JWT 토큰 생성
+                    new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()) // JWT 토큰
             );
         }
-        chain.doFilter(req, res);
+        filterChain.doFilter(request, response);
     }
 
     // request에 포함된 token 추출
@@ -50,10 +45,4 @@ public class JwtFilter extends UsernamePasswordAuthenticationFilter {
         return null;
     }
 
-    //
-    private UserDetails getUserFromToken(String token) {
-        Claims claims = jwtUtil.getClaims(token); // token에 해당되는 claims 객체
-        String userId = claims.getSubject(); // claims 객체에 포함된 userId
-        return new User(userId, "", Collections.emptyList()); // User 객체 리턴
-    }
 }
