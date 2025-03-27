@@ -1,11 +1,15 @@
 package com.raszsixt._d2h.user.controller;
 
 import com.raszsixt._d2h.security.JwtUtil;
+import com.raszsixt._d2h.user.dto.LoginRequestDto;
+import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -63,18 +67,13 @@ public class UserController {
 
     // 로그인 & JWT 발급
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> user) {
-        String userId = user.get("userId");
-        String password = user.get("password");
-        
-        // DB에서 입력한 ID로 정보 조히
-        Optional<User> foundUser = userRepository.findByUserId(userId);
-        if ( foundUser.isEmpty() || !passwordEncoder.matches(password, foundUser.get().getPassword()) ) {
-            return ResponseEntity.badRequest().body("아이디 또는 비밀번호가 틀렸습니다.");
-        }
-        
-        // JWT 토큰 생성
-        String token = jwtUtil.generateToken(userId);
-        return ResponseEntity.ok(Map.of("token", token));
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUserId(), request.getUserPwd())
+        );
+
+        User user = (User) authentication.getPrincipal();
+        String token = jwtUtil.generateToken(user.getUserId());
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 }
