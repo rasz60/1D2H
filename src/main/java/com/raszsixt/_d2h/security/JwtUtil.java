@@ -17,24 +17,35 @@ import java.util.Date;
 public class JwtUtil {
     @Value("${jwt.secret.key}") // @Value = application.yml 속성 값 가져오기
     private String secretKey; // token 생성 secret key
-    @Value("${jwt.expiration.time}")
-    private long expirationTime; // 1일 (milliseconds)
+    @Value("${jwt.expiration.access}")
+    private long accessExpirationTime; // 15분 (milliseconds)
+    @Value("${jwt.expiration.refresh}")
+    private long refreshExpirationTime; // 7일 (milliseconds)
     private Key key;
     @PostConstruct // @PostConstruct = @Value로 주입받은 값들이 초기화 된 후에 실행
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    // JWT 토큰 생성
-    public String generateToken(String userId) {
+    // JWT ACCESS TOKEN 생성
+    public String generateAccessToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // JWT REFRESH TOKEN 생성
+    public String generateRefreshToken(String userId) {
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationTime))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
     // token 검증
     public boolean validateToken(String token) {
         try {

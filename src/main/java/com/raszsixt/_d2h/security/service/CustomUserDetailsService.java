@@ -23,13 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if ( userOptional.isEmpty() ) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");
         }
-
-        User user = userOptional.get();
-
-        return org.springframework.security.core.userdetails.User.builder()
-                .username(user.getUserId())
-                .password(user.getPassword())
-                .roles(user.getUserRole())
-                .build();
+        return userOptional.get();
     }
 }

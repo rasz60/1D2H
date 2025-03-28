@@ -37,4 +37,5 @@ spring:
         secret:
             key: ${JWT_SECRET_KEY}
         expiration:
-            time: ${JWT_EXPIRATION_TIME}
+            access: ${JWT_EXPIRATION_ACCESS}
+            refresh: ${JWT_EXPIRATION_REFRESH}
