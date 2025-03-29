@@ -10,9 +10,11 @@ import com.raszsixt._d2h.user.repository.UserRepository;
 import com.raszsixt._d2h.user.service.UserService;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -58,5 +60,17 @@ public class UserController {
         } catch (RuntimeException re) {
             return ResponseEntity.badRequest().body(re.getMessage());
         }
+    }
+    // ADMIN_ONLY
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/admin-only")
+    public ResponseEntity<?> adminOnly() {
+        return ResponseEntity.ok("이 API는 ADMIN만 접근할 수 있습니다.");
+    }
+    // ADMIN_ONLY
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
+    @GetMapping("/user-or-admin")
+    public ResponseEntity<?> userOrAdmin() {
+        return ResponseEntity.ok("이 API는 USER 또는 ADMIN만 접근할 수 있습니다.");
     }
 }

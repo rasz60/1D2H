@@ -58,7 +58,8 @@ public class UserServiceImpl implements UserService {
         newUser.setUserPwd(userPwd);
         newUser.setUserEmail(userEmail);
         newUser.setUserPhone(userPhone);
-        newUser.setUserRole("USER");
+        newUser.setUserRole("ROLE_USER");
+
         userRepository.save(newUser);
 
         return "회원가입 성공";
