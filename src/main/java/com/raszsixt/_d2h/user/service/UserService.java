@@ -2,8 +2,8 @@ package com.raszsixt._d2h.user.service;
 
 import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
+import org.springframework.security.core.AuthenticationException;
 
-import javax.security.sasl.AuthenticationException;
 import java.util.Map;
 
 public interface UserService {

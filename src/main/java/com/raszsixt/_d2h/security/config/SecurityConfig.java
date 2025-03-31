@@ -4,25 +4,18 @@ import com.raszsixt._d2h.security.filter.CustomAuthEntryPoint;
 import com.raszsixt._d2h.security.service.CustomUserDetailsService;
 import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.security.filter.JwtFilter;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -33,11 +26,13 @@ import java.io.IOException;
 public class SecurityConfig {
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomAuthEntryPoint customAuthEntryPoint;
     private JwtFilter jwtFilter;
 
-    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService) {
+    public SecurityConfig(JwtUtil jwtUtil, CustomUserDetailsService customUserDetailsService, CustomAuthEntryPoint customAuthEntryPoint) {
         this.jwtUtil = jwtUtil;
         this.customUserDetailsService = customUserDetailsService;
+        this.customAuthEntryPoint = customAuthEntryPoint;
         this.jwtFilter = new JwtFilter(jwtUtil, customUserDetailsService); // JwtFilter 객체 주입
     }
     @Bean
@@ -63,7 +58,7 @@ public class SecurityConfig {
         httpSecurity
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class) // JWT 토큰 처리 filter 적용
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(new CustomAuthEntryPoint())
+                        .authenticationEntryPoint(customAuthEntryPoint)
                 )
         ;
 

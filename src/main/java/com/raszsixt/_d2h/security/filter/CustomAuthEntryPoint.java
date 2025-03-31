@@ -1,5 +1,7 @@
 package com.raszsixt._d2h.security.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.raszsixt._d2h.exceptions.dto.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +18,9 @@ public class CustomAuthEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getWriter().write("{\"error\": \"Unauthorized\", \"message\" : \"" + authException.getMessage() + "\"}");
+
+        String json = new ObjectMapper().writeValueAsString(new ErrorResponse(HttpServletResponse.SC_UNAUTHORIZED, "인증이 필요합니다. 다시 로그인해주세요."));
+
+        response.getWriter().write(json);
     }
 }

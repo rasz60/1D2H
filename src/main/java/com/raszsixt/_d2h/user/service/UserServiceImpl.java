@@ -8,15 +8,14 @@ import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.security.sasl.AuthenticationException;
 import java.util.Map;
 import java.util.Optional;
 @Service
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String signup(Map<String, String> signupInfo) throws IllegalArgumentException {
         String userId = signupInfo.get("userId");
-        String userPwd = passwordEncoder.encode(signupInfo.get("userPwd"));
+        String userPwd = signupInfo.get("userPwd");
         String userEmail = signupInfo.get("userEmail");
         String userPhone = signupInfo.get("userPhone");
 
@@ -55,7 +54,7 @@ public class UserServiceImpl implements UserService {
         // 신규 User 저장
         User newUser = new User();
         newUser.setUserId(userId);
-        newUser.setUserPwd(userPwd);
+        newUser.setUserPwd(passwordEncoder.encode(userPwd));
         newUser.setUserEmail(userEmail);
         newUser.setUserPhone(userPhone);
         newUser.setUserRole("ROLE_USER");
