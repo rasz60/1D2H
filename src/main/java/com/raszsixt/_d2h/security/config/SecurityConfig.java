@@ -18,6 +18,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 
@@ -53,6 +55,22 @@ public class SecurityConfig {
                         .anyRequest().authenticated() // 나머지 API는 모두 Permission 필요
                 )
         ;
+        
+        // CORS 설정, FRONTEND 서버 요청 허용
+        httpSecurity.cors(cors -> cors.configurationSource(request -> {
+            CorsConfiguration corsConf = new CorsConfiguration();
+            corsConf.addAllowedOrigin("http://localhost:3000"); // 요청 허용 도메인
+            corsConf.addAllowedMethod("GET");                   // 요청 허용 Http Method
+            corsConf.addAllowedMethod("POST");
+            corsConf.addAllowedMethod("PUT");
+            corsConf.addAllowedMethod("DELETE");
+            corsConf.addAllowedHeader("*");                     // 요청 허용 Header
+            corsConf.setAllowCredentials(true);                 // 자격 증명 (쿠키 등) 허용
+
+            UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+            source.registerCorsConfiguration("/**", corsConf);
+            return corsConf;
+        }));
 
         // Filter
         httpSecurity
