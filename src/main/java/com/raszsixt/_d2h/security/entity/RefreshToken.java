@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name="1D2H_REFRESH_TOKEN")
 @DynamicUpdate
@@ -24,8 +26,15 @@ public class RefreshToken {
     @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
     private String refreshToken;
 
-    public RefreshToken (String userId, String refreshToken) {
+    @Column(columnDefinition = "VARCHAR(1000)", nullable = false)
+    private String deviceInfo;
+
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime regDate;
+
+    public RefreshToken (String userId, String refreshToken, String deviceInfo) {
         this.userId = userId;
         this.refreshToken = refreshToken;
+        this.deviceInfo = deviceInfo;
     }
 }

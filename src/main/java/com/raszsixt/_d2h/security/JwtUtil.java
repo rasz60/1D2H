@@ -3,6 +3,7 @@ package com.raszsixt._d2h.security;
 import com.raszsixt._d2h.user.entity.User;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,15 @@ public class JwtUtil {
     @PostConstruct // @PostConstruct = @Value로 주입받은 값들이 초기화 된 후에 실행
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
+
+    // request에 포함된 token 추출
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization"); // Authoriztion Header 추출
+        if ( bearerToken != null && bearerToken.startsWith("Bearer ") ) { // Header에 Authorization이 있고, Bearer로 시작할 때
+            return bearerToken.substring(7); // Bearer 이 후로 온 값 추출
+        }
+        return null;
     }
 
     // JWT ACCESS TOKEN 생성
@@ -58,8 +68,16 @@ public class JwtUtil {
     
     // token에 담긴 claims 객체에서 userId 조회
     public String getUserIdFromToken(String token) {
-        Claims claims = getClaims(token); // token에 해당되는 claims 객체
-        return claims.getSubject(); // claims 객체에 포함된 userId
+        Claims claims = null;
+        String userId = "";
+        try {
+            claims = getClaims(token); // token에 해당되는 claims 객체
+        } catch (ExpiredJwtException e) {
+            claims = e.getClaims(); // ✅ 만료된 토큰에서 claims 꺼내기
+        } finally {
+            userId = claims != null ? claims.getSubject() : ""; // claims 객체에 포함된 userId
+        }
+        return userId;
     }
 
     // jwt token parsing 하여 claims 객체 리턴

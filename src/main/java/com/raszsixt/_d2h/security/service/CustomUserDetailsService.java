@@ -23,7 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         if ( userOptional.isEmpty() ) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");
         }
-        System.out.println("userROLE : " + userOptional.get().getUserRole());
 
         return userOptional.get();
     }

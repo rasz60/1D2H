@@ -3,6 +3,8 @@ package com.raszsixt._d2h.user.controller;
 import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,8 @@ public class UserController {
     }
     // 로그인 & JWT 발급
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
-        LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
+    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request) {
+        LoginResponseDto loginResponseDto = userService.login(loginRequestDto, request);
         return ResponseEntity.ok(loginResponseDto);
     }
     // RefreshToken이 유효하면 AccessToken 재발행
@@ -33,6 +35,11 @@ public class UserController {
     public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
         LoginResponseDto loginResponseDto = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(loginResponseDto);
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        userService.logout(request);
+        return ResponseEntity.ok("logout");
     }
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
