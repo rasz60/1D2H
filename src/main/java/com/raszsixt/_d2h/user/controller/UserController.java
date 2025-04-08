@@ -41,6 +41,12 @@ public class UserController {
         userService.logout(request);
         return ResponseEntity.ok("logout");
     }
+
+    @GetMapping("/idDupChk/{userId}")
+    public ResponseEntity<?> idDupChk(@PathVariable("userId") String userId) {
+        return ResponseEntity.ok(userService.idDupChk(userId));
+    }
+
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin-only")

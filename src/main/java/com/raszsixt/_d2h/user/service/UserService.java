@@ -13,4 +13,5 @@ public interface UserService {
     public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) throws AuthenticationException;
     public LoginResponseDto refreshToken(String refreshToken) throws RuntimeException;
     public void logout(HttpServletRequest request);
+    public int idDupChk(String userId);
 }

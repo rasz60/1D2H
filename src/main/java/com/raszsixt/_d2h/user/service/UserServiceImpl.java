@@ -119,4 +119,9 @@ public class UserServiceImpl implements UserService {
             exists.ifPresent(refreshTokenRepository::delete);
         }
     }
+
+    @Override
+    public int idDupChk(String userId) {
+        return userRepository.findByUserId(userId).map(u -> 1).orElse(0);
+    }
 }
