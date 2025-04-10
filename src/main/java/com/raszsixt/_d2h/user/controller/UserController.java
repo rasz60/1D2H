@@ -2,6 +2,7 @@ package com.raszsixt._d2h.user.controller;
 
 import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
+import com.raszsixt._d2h.user.dto.SignupDto;
 import com.raszsixt._d2h.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.util.Strings;
@@ -18,11 +19,15 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+    // 중복확인 (아이디, 메일, 연락처)
+    @PostMapping("/dupChk")
+    public ResponseEntity<?> dupChk(@RequestBody SignupDto signupDto) {
+        return ResponseEntity.ok(userService.dupChk(signupDto));
+    }
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody Map<String, String> signupInfo) {
-        String msg = userService.signup(signupInfo);
-        return ResponseEntity.ok(msg);
+    public ResponseEntity<?> signup(@RequestBody SignupDto signupDto) {
+        return ResponseEntity.ok(userService.signup(signupDto));
     }
     // 로그인 & JWT 발급
     @PostMapping("/login")
@@ -36,17 +41,12 @@ public class UserController {
         LoginResponseDto loginResponseDto = userService.refreshToken(refreshToken);
         return ResponseEntity.ok(loginResponseDto);
     }
+    // 로그아웃
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         userService.logout(request);
-        return ResponseEntity.ok("logout");
+        return ResponseEntity.ok("done");
     }
-
-    @GetMapping("/idDupChk/{userId}")
-    public ResponseEntity<?> idDupChk(@PathVariable("userId") String userId) {
-        return ResponseEntity.ok(userService.idDupChk(userId));
-    }
-
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin-only")

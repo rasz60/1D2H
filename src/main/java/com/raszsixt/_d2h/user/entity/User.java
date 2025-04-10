@@ -1,14 +1,17 @@
 package com.raszsixt._d2h.user.entity;
 
+import com.raszsixt._d2h.user.dto.SignupDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -41,10 +44,13 @@ public class User implements UserDetails {
     private String userPhone;
 
     @Column(columnDefinition="TIMESTAMP")
-    private String userBirth;
+    private LocalDateTime userBirth;
 
     @Column(columnDefinition = "VARCHAR(1000)")
     private String userNation;
+
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String userZipCode;
 
     @Column(columnDefinition = "VARCHAR(1000)")
     private String userAddr;
@@ -70,15 +76,28 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime pwdUpdateDate;
 
-    /*
-    // 알람 설정 여부, Alram Entity 생성 후 userId 기준 @OneToMany 가져올 예정
-    @OneToMany(mappedBy = "", fetch=FetchType.LAZY)
-    private List<Alram> alramYn;
-     */
+    @Column(columnDefinition = "VARCHAR(10)")
+    private String alramYn;
 
     public User(String userId, String userPwd, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.userPwd = userPwd;
+    }
+
+    // Dto -> Entity
+    public static User of(SignupDto signupDto) {
+        User newUser = new User();
+
+        newUser.setUserId(signupDto.getSignupUserId());
+        newUser.setUserEmail(signupDto.getUserEmailId() + "@" + signupDto.getUserEmailDomain());
+        newUser.setUserPhone(signupDto.getUserPhone());
+        newUser.setUserZipCode(signupDto.getUserZipCode());
+        newUser.setUserAddr(signupDto.getUserAddr());
+        newUser.setUserAddrDesc(signupDto.getUserAddrDesc());
+        newUser.setUserBirth(signupDto.getUserBirth());
+        newUser.setAlramYn(signupDto.isAlarmYn() ? "Y" : "N");
+
+        return newUser;
     }
 
     @Override
