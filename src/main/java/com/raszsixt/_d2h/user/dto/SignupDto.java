@@ -16,7 +16,7 @@ public class SignupDto {
     private String userEmailDomain;
     private String userEmail;
     private String userPhone;
-    private LocalDateTime userBirth;
+    private String userBirth;
     private String userNation;
     private String userZipCode;
     private String userAddr;

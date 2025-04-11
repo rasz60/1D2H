@@ -13,7 +13,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,7 +96,12 @@ public class User implements UserDetails {
         newUser.setUserZipCode(signupDto.getUserZipCode());
         newUser.setUserAddr(signupDto.getUserAddr());
         newUser.setUserAddrDesc(signupDto.getUserAddrDesc());
-        newUser.setUserBirth(signupDto.getUserBirth());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
+        LocalDate date = LocalDate.parse(signupDto.getUserBirth(), formatter);
+        LocalDateTime dateTime = date.atStartOfDay();
+        newUser.setUserBirth(dateTime);
+
         newUser.setAlramYn(signupDto.isAlarmYn() ? "Y" : "N");
 
         return newUser;

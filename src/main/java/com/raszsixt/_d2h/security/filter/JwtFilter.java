@@ -26,6 +26,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.resolveToken(request);
+
+        if ( token == null ) {
+            // refreshToken 조회
+        }
+
+
         if ( token != null && jwtUtil.validateToken(token) ) { // token 검증 성공 시
             String userId = jwtUtil.getUserIdFromToken(token);
             User user = (User) userDetailsService.loadUserByUsername(userId);

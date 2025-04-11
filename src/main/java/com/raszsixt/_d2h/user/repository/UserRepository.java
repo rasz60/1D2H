@@ -9,7 +9,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserId(String userId);
@@ -17,10 +16,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserPhone(String userPhone);
 
     @Modifying
+    @Transactional
     @Query("UPDATE User u SET u.firstVisitDate = :firstVisitDate WHERE u.userMgmtNo = :userMgmtNo")
     int updateFirstVisitDate(@Param("userMgmtNo") Long userMgmtNo,@Param("firstVisitDate") LocalDateTime firstVisitDate);
 
     @Modifying
+    @Transactional
     @Query("UPDATE User u SET u.latestVisitDate = :latestVisitDate WHERE u.userMgmtNo = :userMgmtNo")
     int updateLatestVisitDate(@Param("userMgmtNo") Long userMgmtNo,@Param("latestVisitDate") LocalDateTime latestVisitDate);
 }

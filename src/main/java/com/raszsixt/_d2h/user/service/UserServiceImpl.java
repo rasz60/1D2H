@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -163,5 +164,10 @@ public class UserServiceImpl implements UserService {
             Optional<RefreshToken> exists = refreshTokenRepository.findByUserIdAndDeviceInfo(userId, deviceInfo);
             exists.ifPresent(refreshTokenRepository::delete);
         }
+    }
+    // 로그인 유저의 role 조회
+    @Override
+    public String getLoginUserRole(String userId) {
+        return userRepository.findByUserId(userId).get().getUserRole();
     }
 }
