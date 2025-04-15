@@ -12,4 +12,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     List<RefreshToken> findByUserId(String userId);
 
     Optional<RefreshToken> findByUserIdAndDeviceInfo(String userId, String deviceInfo);
+
+    Optional<RefreshToken> findFirstByDeviceInfoOrderByRegDateDesc(String deviceInfo);
 }

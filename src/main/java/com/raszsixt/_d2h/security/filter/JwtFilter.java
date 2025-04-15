@@ -25,19 +25,43 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = jwtUtil.resolveToken(request);
+        String token = null;
+        String newToken = null;
+        String userId = null;
+
+        token = jwtUtil.resolveAccessToken(request);
 
         if ( token == null ) {
             // refreshToken 조회
+            token = jwtUtil.resolveRefreshToken(request);
+
+            // refreshToken이 존재하는 경우
+            if ( token != null && jwtUtil.validateToken(token) ) {
+                // 토큰에 포함된 userId 추출하여 신규 access token 생성
+                userId = jwtUtil.getUserIdFromToken(token);
+                newToken = jwtUtil.generateAccessToken(userId);
+
+            }
         }
 
-
         if ( token != null && jwtUtil.validateToken(token) ) { // token 검증 성공 시
-            String userId = jwtUtil.getUserIdFromToken(token);
+            // token에서 추출된 userId가 없을 때,
+            if (userId == null) {
+                userId = jwtUtil.getUserIdFromToken(token);
+            }
             User user = (User) userDetailsService.loadUserByUsername(userId);
+            
+            // 신규 access token이 있을 때
+            if (newToken != null) {
+                response.setHeader("new-access-token", newToken);
+            }
+
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()) // JWT 토큰
             );
+        } else {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "토큰이 만료되었습니다.");
+            return;
         }
         filterChain.doFilter(request, response);
     }

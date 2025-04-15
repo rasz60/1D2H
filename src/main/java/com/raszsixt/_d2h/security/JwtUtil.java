@@ -1,5 +1,7 @@
 package com.raszsixt._d2h.security;
 
+import com.raszsixt._d2h.security.entity.RefreshToken;
+import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
 import com.raszsixt._d2h.user.entity.User;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtUtil {
@@ -23,16 +26,40 @@ public class JwtUtil {
     @Value("${jwt.expiration.refresh}")
     private long refreshExpirationTime; // 7일 (milliseconds)
     private Key key;
+
+    private RefreshTokenRepository refreshTokenRepository;
+
+    public JwtUtil(RefreshTokenRepository refreshTokenRepository) {
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
+
     @PostConstruct // @PostConstruct = @Value로 주입받은 값들이 초기화 된 후에 실행
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     // request에 포함된 token 추출
-    public String resolveToken(HttpServletRequest request) {
+    public String resolveAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization"); // Authoriztion Header 추출
         if ( bearerToken != null && bearerToken.startsWith("Bearer ") ) { // Header에 Authorization이 있고, Bearer로 시작할 때
             return bearerToken.substring(7); // Bearer 이 후로 온 값 추출
+        }
+        return null;
+    }
+
+    // Refresh Token 조회
+    public String resolveRefreshToken(HttpServletRequest request) {
+        // header에 device info 추출
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+        }
+        String device = request.getHeader("X-device-info");
+        String deviceInfo = device + " - " + ip;
+
+        Optional<RefreshToken> exists = refreshTokenRepository.findFirstByDeviceInfoOrderByRegDateDesc(deviceInfo);
+        if (exists.isPresent()) {
+            return exists.get().getRefreshToken();
         }
         return null;
     }

@@ -154,11 +154,16 @@ public class UserServiceImpl implements UserService {
     // 로그아웃
     @Override
     public void logout(HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request); // request에서 token 추출
+        String token = jwtUtil.resolveAccessToken(request); // request에서 token 추출
         String userId = jwtUtil.getUserIdFromToken(token); // token으로 id 추출
         if (!Strings.isEmpty(userId)) {
             // header에 device info 추출
-            String deviceInfo = request.getHeader("X-device-info");
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip == null) {
+                ip = request.getRemoteAddr();
+            }
+            String device = request.getHeader("X-device-info");
+            String deviceInfo = device + " - " + ip;
 
             // 아이디의 refreshToken 삭제
             Optional<RefreshToken> exists = refreshTokenRepository.findByUserIdAndDeviceInfo(userId, deviceInfo);
