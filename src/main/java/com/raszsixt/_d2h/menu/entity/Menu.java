@@ -35,6 +35,9 @@ public class Menu {
     @Column(columnDefinition = "VARCHAR(10)")
     private String menuUseYn;
 
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String menuTarget;
+
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime menuRegDate;
 

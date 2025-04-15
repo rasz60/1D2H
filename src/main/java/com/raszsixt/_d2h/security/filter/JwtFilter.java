@@ -12,8 +12,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Set;
 
 public class JwtFilter extends OncePerRequestFilter {
+
+    // token 조회 제외 URL
+    private static final Set<String> EXCLUEDE_URLS = Set.of( "/api/auth", "/api/menu" );
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -25,6 +29,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
+
+        // token 조회 제외 URL인지 확인
+        if ( EXCLUEDE_URLS.stream().anyMatch(path::startsWith) ) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        // token 체크
         String token = null;
         String newToken = null;
         String userId = null;
@@ -40,17 +53,22 @@ public class JwtFilter extends OncePerRequestFilter {
                 // 토큰에 포함된 userId 추출하여 신규 access token 생성
                 userId = jwtUtil.getUserIdFromToken(token);
                 newToken = jwtUtil.generateAccessToken(userId);
-
             }
         }
 
-        if ( token != null && jwtUtil.validateToken(token) ) { // token 검증 성공 시
+        //
+        if ( token == null ) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
+            return;
+        }
+
+        if ( jwtUtil.validateToken(token) ) { // token 검증 성공 시
             // token에서 추출된 userId가 없을 때,
             if (userId == null) {
                 userId = jwtUtil.getUserIdFromToken(token);
             }
             User user = (User) userDetailsService.loadUserByUsername(userId);
-            
+
             // 신규 access token이 있을 때
             if (newToken != null) {
                 response.setHeader("new-access-token", newToken);
