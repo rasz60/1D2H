@@ -10,6 +10,10 @@
 
 - React, Spring-Boot, JAVA, Spring-Security, JWT, JPA, PostgreSQL
 
-#### Week-3. 회원 가입 및 메뉴 구현 ( 진행 중 ~ )
+#### Week-3. 회원 가입 및 메뉴 구현 ( Done! )
+
+- React, Spring-Boot, JAVA, Spring-Security, JWT, JPA, PostgreSQL
+
+#### Week-4. 권한 처리 및 Router 화면 구현 ( 진행 중 ~ )
 
 - React, Spring-Boot, JAVA, Spring-Security, JWT, JPA, PostgreSQL

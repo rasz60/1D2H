@@ -36,9 +36,9 @@ public class UserController {
         return ResponseEntity.ok(loginResponseDto);
     }
     // RefreshToken이 유효하면 AccessToken 재발행
-    @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
-        LoginResponseDto loginResponseDto = userService.refreshToken(refreshToken);
+    @GetMapping("/check")
+    public ResponseEntity<?> authCheck(HttpServletRequest request) {
+        LoginResponseDto loginResponseDto = userService.authCheck(request);
         return ResponseEntity.ok(loginResponseDto);
     }
     // 로그아웃

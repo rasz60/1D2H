@@ -2,9 +2,11 @@ package com.raszsixt._d2h.menu.service;
 
 import com.raszsixt._d2h.menu.entity.Menu;
 import com.raszsixt._d2h.menu.repository.MenuRepository;
+import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.service.UserService;
 import com.raszsixt._d2h.user.service.UserServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,17 +20,23 @@ import java.util.List;
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
     private final UserService userService;
-
-    public MenuServiceImpl(MenuRepository menuRepository, UserService userService) {
+    private final JwtUtil jwtUtil;
+    public MenuServiceImpl(MenuRepository menuRepository, UserService userService, JwtUtil jwtUtil) {
         this.menuRepository = menuRepository;
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
-    public List<Menu> getMenus(Principal principal) {
+    public List<Menu> getMenus(HttpServletRequest request) {
+        String token = jwtUtil.resolveAccessToken(request);
+        String userId = jwtUtil.getUserIdFromToken(token);
+
         String userRole = "guest";
-        if ( principal != null )
-            userRole = userService.getLoginUserRole(principal.getName());
+
+        if (! "".equals(userId) ) {
+            userRole = userService.getLoginUserRole(userId);
+        }
 
         return menuRepository.findByMenuUseYnAndMenuAuthLessThan("Y", setMenuAuth(userRole));
     }

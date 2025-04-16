@@ -132,24 +132,46 @@ public class UserServiceImpl implements UserService {
         String refreshToken = jwtUtil.generateRefreshToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, refreshToken, deviceInfo));
 
-        return new LoginResponseDto(accessToken);
+        return new LoginResponseDto(accessToken, this.getAuthLevel(user.getUserRole()));
     }
     // token refresh 처리
     @Override
-    public LoginResponseDto refreshToken(String refreshToken) throws RuntimeException {
-        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByRefreshToken(refreshToken);
-        // 존재하지 않는 token 일 때
-        if (optionalRefreshToken.isEmpty()) {
-            throw new RuntimeException("존재하지 않는 RefreshToken 입니다.");
+    public LoginResponseDto authCheck(HttpServletRequest request) throws AuthenticationException {
+        String token = null;
+        String refreshToken = null;
+        String userId = null;
+        String role = "guest";
+
+        // 1. request에서 Access Token 추출
+        token = jwtUtil.resolveAccessToken(request);
+
+        // 2. request Access Token 존재하지만, 유효하지 않을 때
+        if ( token != null && ! jwtUtil.validateToken(token) ) {
+            // 2-1. token 초기화
+            token = null;
         }
-        // 만료됐을 때
-        if (!jwtUtil.validateToken(refreshToken)) {
-            refreshTokenRepository.delete(optionalRefreshToken.get());
-            throw new RuntimeException("만료된 RefreshToken 입니다.");
+
+        // 3. request에 Access Token이 없는 경우
+        if ( token == null ) {
+            // 3-1. Refresh Token 확인
+            refreshToken = jwtUtil.resolveRefreshToken(request);
+
+            // 3-2. Refresh Token이 존재하고, 유효할 때
+            if ( refreshToken != null && jwtUtil.validateToken(refreshToken) ) {
+                
+                // 3-3. 신규 Access Token 발급
+                userId = jwtUtil.getUserIdFromToken(refreshToken);
+                token = jwtUtil.generateAccessToken(userId);
+            }
         }
-        // 새로운 AccessToken 발급
-        String newAccessToken = jwtUtil.generateAccessToken(jwtUtil.getUserIdFromToken(refreshToken));
-        return new LoginResponseDto(newAccessToken);
+
+        // 4. token에서 추출한 userId에 userRole 추가
+        if ( token != null ) {
+            userId = jwtUtil.getUserIdFromToken(token);
+            role = getLoginUserRole(userId);
+        }
+
+        return new LoginResponseDto(token, this.getAuthLevel(role));
     }
     // 로그아웃
     @Override
@@ -174,5 +196,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getLoginUserRole(String userId) {
         return userRepository.findByUserId(userId).get().getUserRole();
+    }
+
+    public int getAuthLevel(String userRole) {
+        int auth = 0;
+
+        if ( "guest".equals(userRole) ) {
+            auth = 1;
+        } else if ( "ROLE_USER".equals(userRole) ) {
+            auth = 2;
+        } else if ( "ROLE_ADMIN".equals(userRole) ) {
+            auth = 3;
+        }
+        return auth;
     }
 }

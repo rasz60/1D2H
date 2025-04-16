@@ -12,7 +12,7 @@ public interface UserService {
     public String signup(SignupDto signupDto) throws IllegalArgumentException;
     public SignupDto dupChk(SignupDto signupDto);
     public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) throws AuthenticationException;
-    public LoginResponseDto refreshToken(String refreshToken) throws RuntimeException;
+    public LoginResponseDto authCheck(HttpServletRequest request) throws AuthenticationException;
     public void logout(HttpServletRequest request);
     public String getLoginUserRole(String userId);
 }
