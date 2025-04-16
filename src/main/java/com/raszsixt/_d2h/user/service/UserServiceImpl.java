@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
         User newUser = User.of(signupDto);
         newUser.setUserPwd(passwordEncoder.encode(signupDto.getSignupUserPwd()));
         newUser.setUserRole("ROLE_USER");
+        newUser.setUserSignOutYn("N");
         userRepository.save(newUser);
 
         return "회원 가입에 성공했습니다.";
@@ -153,16 +154,8 @@ public class UserServiceImpl implements UserService {
 
         // 3. request에 Access Token이 없는 경우
         if ( token == null ) {
-            // 3-1. Refresh Token 확인
-            refreshToken = jwtUtil.resolveRefreshToken(request);
-
-            // 3-2. Refresh Token이 존재하고, 유효할 때
-            if ( refreshToken != null && jwtUtil.validateToken(refreshToken) ) {
-                
-                // 3-3. 신규 Access Token 발급
-                userId = jwtUtil.getUserIdFromToken(refreshToken);
-                token = jwtUtil.generateAccessToken(userId);
-            }
+            // 3-1. Refresh Token 조회하여 새로운 Access Token 발급
+            token = jwtUtil.resolveNewAccessToken(request);
         }
 
         // 4. token에서 추출한 userId에 userRole 추가
@@ -176,20 +169,43 @@ public class UserServiceImpl implements UserService {
     // 로그아웃
     @Override
     public void logout(HttpServletRequest request) {
-        String token = jwtUtil.resolveAccessToken(request); // request에서 token 추출
-        String userId = jwtUtil.getUserIdFromToken(token); // token으로 id 추출
-        if (!Strings.isEmpty(userId)) {
-            // header에 device info 추출
-            String ip = request.getHeader("X-Forwarded-For");
-            if (ip == null) {
-                ip = request.getRemoteAddr();
-            }
-            String device = request.getHeader("X-device-info");
-            String deviceInfo = device + " - " + ip;
+        String token = null;
+        String refreshToken = null;
+        String userId = null;
 
-            // 아이디의 refreshToken 삭제
-            Optional<RefreshToken> exists = refreshTokenRepository.findByUserIdAndDeviceInfo(userId, deviceInfo);
-            exists.ifPresent(refreshTokenRepository::delete);
+        // 1. request에서 access token 추출
+        token = jwtUtil.resolveAccessToken(request);
+
+        // 2. token 이 없을 때
+        if ( token == null ) {
+            refreshToken = jwtUtil.resolveRefreshToken(request);
+        }
+
+        // 3. 어떠한 token을 찾을 수 없을 때, 바로 return
+        if ( token == null && refreshToken == null ) {
+            return;
+        }
+
+        // 4. refreshToken 이 있을 때, 바로 삭제
+        if ( refreshToken != null ) {
+            refreshTokenRepository.findByRefreshToken(refreshToken).ifPresent(refreshTokenRepository::delete);
+        }
+        // 5. refreshToken 이 없을 때, userId와 deviceInfo로 찾아낸 refreshToken 삭제
+        else {
+            userId = jwtUtil.getUserIdFromToken(token); // token으로 id 추출
+            if (!Strings.isEmpty(userId)) {
+                // header에 device info 추출
+                String ip = request.getHeader("X-Forwarded-For");
+                if (ip == null) {
+                    ip = request.getRemoteAddr();
+                }
+                String device = request.getHeader("X-device-info");
+                String deviceInfo = device + " - " + ip;
+
+                // 아이디의 refreshToken 삭제
+                Optional<RefreshToken> exists = refreshTokenRepository.findByUserIdAndDeviceInfo(userId, deviceInfo);
+                exists.ifPresent(refreshTokenRepository::delete);
+            }
         }
     }
     // 로그인 유저의 role 조회

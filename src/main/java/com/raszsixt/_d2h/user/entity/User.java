@@ -78,6 +78,12 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime pwdUpdateDate;
 
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime userExpiredDate;
+
+    @Column(columnDefinition="VARCHAR(10)")
+    private String userSignOutYn;
+
     @Column(columnDefinition = "VARCHAR(10)")
     private String alramYn;
 
@@ -97,10 +103,12 @@ public class User implements UserDetails {
         newUser.setUserAddr(signupDto.getUserAddr());
         newUser.setUserAddrDesc(signupDto.getUserAddrDesc());
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
-        LocalDate date = LocalDate.parse(signupDto.getUserBirth(), formatter);
-        LocalDateTime dateTime = date.atStartOfDay();
-        newUser.setUserBirth(dateTime);
+        if (! signupDto.getUserBirth().isEmpty() ) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
+            LocalDate date = LocalDate.parse(signupDto.getUserBirth(), formatter);
+            LocalDateTime dateTime = date.atStartOfDay();
+            newUser.setUserBirth(dateTime);
+        }
 
         newUser.setAlramYn(signupDto.isAlarmYn() ? "Y" : "N");
 

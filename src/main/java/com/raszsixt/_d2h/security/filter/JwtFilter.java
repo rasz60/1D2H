@@ -45,28 +45,20 @@ public class JwtFilter extends OncePerRequestFilter {
         token = jwtUtil.resolveAccessToken(request);
 
         if ( token == null ) {
-            // refreshToken 조회
-            token = jwtUtil.resolveRefreshToken(request);
-
-            // refreshToken이 존재하는 경우
-            if ( token != null && jwtUtil.validateToken(token) ) {
-                // 토큰에 포함된 userId 추출하여 신규 access token 생성
-                userId = jwtUtil.getUserIdFromToken(token);
-                newToken = jwtUtil.generateAccessToken(userId);
-            }
+            // refreshToken 조회하여 새로운 access Token 발급
+            newToken = jwtUtil.resolveNewAccessToken(request);
         }
 
-        //
+        // refresh Token 으로 access token 발급 실패 시
         if ( token == null ) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.");
             return;
         }
 
-        if ( jwtUtil.validateToken(token) ) { // token 검증 성공 시
+        // token 검증 성공 시
+        if ( jwtUtil.validateToken(token) ) {
             // token에서 추출된 userId가 없을 때,
-            if (userId == null) {
-                userId = jwtUtil.getUserIdFromToken(token);
-            }
+            userId = jwtUtil.getUserIdFromToken(token);
             User user = (User) userDetailsService.loadUserByUsername(userId);
 
             // 신규 access token이 있을 때

@@ -3,6 +3,7 @@ package com.raszsixt._d2h.security;
 import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
 import com.raszsixt._d2h.user.entity.User;
+import com.raszsixt._d2h.user.repository.UserRepository;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,9 +29,10 @@ public class JwtUtil {
     private Key key;
 
     private RefreshTokenRepository refreshTokenRepository;
-
-    public JwtUtil(RefreshTokenRepository refreshTokenRepository) {
+    private UserRepository userRepository;
+    public JwtUtil(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
     }
 
     @PostConstruct // @PostConstruct = @Value로 주입받은 값들이 초기화 된 후에 실행
@@ -46,6 +48,26 @@ public class JwtUtil {
         }
         return null;
     }
+    // Refresh Token으로 새로운 access token 발급
+    public String resolveNewAccessToken(HttpServletRequest request) {
+        String newAccessToken = null;
+        String refreshToken = null;
+        String userId = null;
+
+        refreshToken = resolveRefreshToken(request);
+
+        if ( refreshToken != null && this.validateToken(refreshToken) ) {
+            userId = getUserIdFromToken(refreshToken);
+            Optional<User> user = userRepository.findByUserIdAndUserSignOutYn(userId, "N");
+
+            if (user.isPresent()) {
+                newAccessToken = generateAccessToken(userId);
+            }
+        }
+
+        return newAccessToken;
+    }
+
 
     // Refresh Token 조회
     public String resolveRefreshToken(HttpServletRequest request) {

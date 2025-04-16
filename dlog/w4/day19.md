@@ -14,3 +14,50 @@
 - LoginResponseDto에 auth 변수 추가
 - /api/auth/login 결과에도 auth 생성하여 return
 
+#### 2. 회원 탈퇴 flag 추가
+- User Entity : USER_EXPIRED_DATE, SIGN_OUT_YN 추가
+- 새로운 Access Token 발급 시, SIGN_OUT_YN이 'N'인 user를 조회하도록 구현
+
+#### 3. 새로운 Access Token 발급 메서드 구현
+- jwtUtil.resolveNewAccessToken()
+- axios header에서 access Token 추출 실패 시
+- refresh Token을 조회하여 새로운 access token을 발급하는 메서드
+- refresh token이 만료이거나, refresh token에서 추출한 userId가 탈퇴했을 경우, null로 return
+
+#### 4. 오류 수정
+- 회원가입 시, SignUpDto의 userBirth를 localDateTime으로 변환하는 로직 null 처리 추가
+```
+User.java
+
+
+.
+.
+.
+// Dto -> Entity
+  public static User of(SignupDto signupDto) {
+      User newUser = new User();
+
+      newUser.setUserId(signupDto.getSignupUserId());
+      newUser.setUserEmail(signupDto.getUserEmailId() + "@" + signupDto.getUserEmailDomain());
+      newUser.setUserPhone(signupDto.getUserPhone());
+      newUser.setUserZipCode(signupDto.getUserZipCode());
+      newUser.setUserAddr(signupDto.getUserAddr());
+      newUser.setUserAddrDesc(signupDto.getUserAddrDesc());
+
+      if (! signupDto.getUserBirth().isEmpty() ) {
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
+          LocalDate date = LocalDate.parse(signupDto.getUserBirth(), formatter);
+          LocalDateTime dateTime = date.atStartOfDay();
+          newUser.setUserBirth(dateTime);
+      }
+
+      newUser.setAlramYn(signupDto.isAlarmYn() ? "Y" : "N");
+
+      return newUser;
+  }
+.
+.
+.
+```
+- 로그아웃 시 refresh token 삭제 로직 중 Header에 Access Token이 없을 때 처리 추가
+- 메뉴 조회 시 user 권한 체크 로직 중 Header에 Access Token이 없을 때 처리 추가

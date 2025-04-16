@@ -29,12 +29,15 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<Menu> getMenus(HttpServletRequest request) {
+        String userId = null;
         String token = jwtUtil.resolveAccessToken(request);
-        String userId = jwtUtil.getUserIdFromToken(token);
 
+        if ( token != null ) {
+            userId = jwtUtil.getUserIdFromToken(token);
+        }
         String userRole = "guest";
 
-        if (! "".equals(userId) ) {
+        if ( userId != null ) {
             userRole = userService.getLoginUserRole(userId);
         }
 
