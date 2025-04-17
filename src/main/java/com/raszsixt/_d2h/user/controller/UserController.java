@@ -3,9 +3,11 @@ package com.raszsixt._d2h.user.controller;
 import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.dto.SignupDto;
+import com.raszsixt._d2h.user.dto.UserDto;
 import com.raszsixt._d2h.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,9 +50,21 @@ public class UserController {
         return ResponseEntity.ok("done");
     }
     // ID, PW 일치 여부 확인
-    @GetMapping("/infoChk")
+    @PostMapping("/infoChk")
     public ResponseEntity<?> infoChk(@RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request) {
-        String res = userService.infoChk(loginRequestDto, request);
+        UserDto res = userService.infoChk(loginRequestDto, request);
+        HttpHeaders headers = new HttpHeaders();
+        if (! res.getNewAccessToken().isEmpty() ) {
+            headers.add("new-access-token", res.getNewAccessToken());
+            res.setNewAccessToken("");
+            return ResponseEntity.ok().headers(headers).body(res);
+        }
+        return ResponseEntity.ok(res);
+    }
+    // 회원정보 변경
+    @PostMapping("/setUser")
+    public ResponseEntity<?> setUser(@RequestBody UserDto userDto, HttpServletRequest request) {
+        String res = userService.setUser(userDto, request);
         return ResponseEntity.ok(res);
     }
     // ADMIN_ONLY

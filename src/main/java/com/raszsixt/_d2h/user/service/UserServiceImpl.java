@@ -6,8 +6,10 @@ import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
 import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.dto.SignupDto;
+import com.raszsixt._d2h.user.dto.UserDto;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
+import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -211,28 +212,80 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String infoChk(LoginRequestDto loginRequestDto, HttpServletRequest request) throws BadCredentialsException {
+    public UserDto infoChk(LoginRequestDto loginRequestDto, HttpServletRequest request) throws BadCredentialsException, SecurityException {
         String token = null;
+        boolean isNewToken = false;
         String extractUserId = null;
 
-        // 1. token의 userId 추출
+        // 1. header에서 token 추출
         token = jwtUtil.resolveAccessToken(request);
+
+        // 2. token이 null인 경우 refresh token으로 재발급 처리
+        if ( token == null ) {
+            token = jwtUtil.resolveNewAccessToken(request);
+            isNewToken = token != null;
+        }
+        
+        // 3. token에서 userId 추출
         if ( token != null && jwtUtil.validateToken(token) ) {
             extractUserId = jwtUtil.getUserIdFromToken(token);
         }
 
-        // 2. userId와 요청 Id가 같은지 확인, 다르면 실패
-        if ( extractUserId == null && ! extractUserId.equals(loginRequestDto.getUserId()) ) {
-            return "로그인 유효기간이 만료되었습니다.\n다시 로그인 해주시길 바랍니다.";
+        // 4. userId와 요청 Id가 같은지 확인, 다르면 실패
+        if ( token == null || extractUserId == null || ! extractUserId.equals(loginRequestDto.getUserId()) ) {
+            throw new SecurityException("로그인 유효기간이 만료되었습니다.\n다시 로그인 해주시길 바랍니다.");
         }
-        // 3. userId와 userPwd가 일치하는지 확인
-        Optional<User> exsist = userRepository.findByUserIdAndUserPwdAndUserSignOutYn(loginRequestDto.getUserId(),
-                                                                                      passwordEncoder.encode(loginRequestDto.getUserPwd()),
-                                                                         "N");
-        if ( exsist.isEmpty() ) {
-            throw new BadCredentialsException("");
+
+        // 5. userId와 userPwd가 일치하는지 확인
+        Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn(loginRequestDto.getUserId(),"N");
+        if ( exsist.isEmpty() || !passwordEncoder.matches(loginRequestDto.getUserPwd(),exsist.get().getUserPwd()) ) {
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
-        return "비밀번호가 일치합니다.";
+
+        // 6. return bind
+        UserDto dto = UserDto.of(exsist.get());
+        dto.setNewAccessToken(isNewToken ? token : "");
+        return dto;
+    }
+
+    public String setUser(UserDto userDto, HttpServletRequest request)  throws IllegalArgumentException {
+        // 필수 값 체크
+        String userEmail = userDto.getUserEmailId() + "@" + userDto.getUserEmailDomain();
+        String userPhone = userDto.getUserPhone();
+        if (Strings.isEmpty(userEmail) || Strings.isEmpty(userPhone)) {
+            throw new IllegalArgumentException("필수 값 (이메일, 전화번호)를 입력해주세요.");
+        }
+
+        // 중복 확인
+        SignupDto dupChkDto = new SignupDto();
+        dupChkDto.setSignupUserId(userDto.getUserId());
+        dupChkDto.setUserEmailId(userDto.getUserEmailId());
+        dupChkDto.setUserEmailDomain(userDto.getUserEmailDomain());
+        dupChkDto.setUserPhone(userDto.getUserPhone());
+        dupChkDto = dupChk(dupChkDto);
+
+        String errMsg = "";
+        if ( dupChkDto.isUserEmailDupChk() ) {
+            errMsg = "이미 가입된 이메일 주소 입니다.";
+        } else if ( dupChkDto.isUserPhoneDupChk() ) {
+            errMsg = "이미 가입된 연락처 입니다.";
+        }
+
+        if (! Strings.isEmpty(errMsg) ) {
+            throw new IllegalArgumentException(errMsg);
+        }
+
+        // 신규 User 저장
+        Optional<User> user = userRepository.findByUserId(userDto.getUserId());
+        User newUser = User.of(userDto, user.get());
+        if ( userDto.getNewUserPwd() != null ) {
+            newUser.setUserPwd(passwordEncoder.encode(userDto.getNewUserPwd()));
+            newUser.setPwdUpdateDate(LocalDateTime.now());
+        }
+        newUser.setUpdateDate(LocalDateTime.now());
+        userRepository.save(newUser);
+
+        return "회원 정보 수정에 성공했습니다.";
     }
 
     // 로그인 유저의 role 조회

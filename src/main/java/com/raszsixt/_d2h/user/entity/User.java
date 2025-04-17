@@ -1,6 +1,7 @@
 package com.raszsixt._d2h.user.entity;
 
 import com.raszsixt._d2h.user.dto.SignupDto;
+import com.raszsixt._d2h.user.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -79,6 +80,9 @@ public class User implements UserDetails {
     private LocalDateTime pwdUpdateDate;
 
     @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime updateDate;
+
+    @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime userExpiredDate;
 
     @Column(columnDefinition="VARCHAR(10)")
@@ -113,6 +117,22 @@ public class User implements UserDetails {
         newUser.setAlramYn(signupDto.isAlarmYn() ? "Y" : "N");
 
         return newUser;
+    }
+
+    public static User of(UserDto userDto, User user) {
+        user.setUserEmail(userDto.getUserEmailId() + "@" + userDto.getUserEmailDomain());
+        user.setUserPhone(userDto.getUserPhone());
+        user.setUserZipCode(userDto.getUserZipCode());
+        user.setUserAddr(userDto.getUserAddr());
+        user.setUserAddrDesc(userDto.getUserAddrDesc());
+        if ( userDto.getUserBirth() != null ) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
+            LocalDate date = LocalDate.parse(userDto.getUserBirth(), formatter);
+            LocalDateTime dateTime = date.atStartOfDay();
+            user.setUserBirth(dateTime);
+        }
+        user.setAlramYn(userDto.isAlarmYn() ? "Y" : "N");
+        return user;
     }
 
     @Override
