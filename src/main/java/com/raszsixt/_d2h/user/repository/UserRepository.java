@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUserEmail(String userEmail);
     Optional<User> findByUserPhone(String userPhone);
     Optional<User> findByUserIdAndUserSignOutYn(String userId, String userSignOutYn);
-
+    Optional<User> findByUserIdAndUserPwdAndUserSignOutYn(String userId, String userPwd, String userSignOutYn);
     @Modifying
     @Transactional
     @Query("UPDATE User u SET u.firstVisitDate = :firstVisitDate WHERE u.userMgmtNo = :userMgmtNo")

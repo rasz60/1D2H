@@ -4,7 +4,9 @@ import com.raszsixt._d2h.user.dto.LoginRequestDto;
 import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.dto.SignupDto;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Map;
 
@@ -14,5 +16,6 @@ public interface UserService {
     public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) throws AuthenticationException;
     public LoginResponseDto authCheck(HttpServletRequest request) throws AuthenticationException;
     public void logout(HttpServletRequest request);
+    public String infoChk(LoginRequestDto loginRequestDto, HttpServletRequest request) throws BadCredentialsException;
     public String getLoginUserRole(String userId);
 }

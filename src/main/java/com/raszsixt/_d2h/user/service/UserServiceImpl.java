@@ -11,6 +11,7 @@ import com.raszsixt._d2h.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -133,7 +134,7 @@ public class UserServiceImpl implements UserService {
         String refreshToken = jwtUtil.generateRefreshToken(userId);
         refreshTokenRepository.save(new RefreshToken(userId, refreshToken, deviceInfo));
 
-        return new LoginResponseDto(accessToken, this.getAuthLevel(user.getUserRole()));
+        return new LoginResponseDto(accessToken, user.getUserId(),this.getAuthLevel(user.getUserRole()));
     }
     // token refresh 처리
     @Override
@@ -164,7 +165,7 @@ public class UserServiceImpl implements UserService {
             role = getLoginUserRole(userId);
         }
 
-        return new LoginResponseDto(token, this.getAuthLevel(role));
+        return new LoginResponseDto(token, userId, this.getAuthLevel(role));
     }
     // 로그아웃
     @Override
@@ -208,6 +209,32 @@ public class UserServiceImpl implements UserService {
             }
         }
     }
+
+    @Override
+    public String infoChk(LoginRequestDto loginRequestDto, HttpServletRequest request) throws BadCredentialsException {
+        String token = null;
+        String extractUserId = null;
+
+        // 1. token의 userId 추출
+        token = jwtUtil.resolveAccessToken(request);
+        if ( token != null && jwtUtil.validateToken(token) ) {
+            extractUserId = jwtUtil.getUserIdFromToken(token);
+        }
+
+        // 2. userId와 요청 Id가 같은지 확인, 다르면 실패
+        if ( extractUserId == null && ! extractUserId.equals(loginRequestDto.getUserId()) ) {
+            return "로그인 유효기간이 만료되었습니다.\n다시 로그인 해주시길 바랍니다.";
+        }
+        // 3. userId와 userPwd가 일치하는지 확인
+        Optional<User> exsist = userRepository.findByUserIdAndUserPwdAndUserSignOutYn(loginRequestDto.getUserId(),
+                                                                                      passwordEncoder.encode(loginRequestDto.getUserPwd()),
+                                                                         "N");
+        if ( exsist.isEmpty() ) {
+            throw new BadCredentialsException("");
+        }
+        return "비밀번호가 일치합니다.";
+    }
+
     // 로그인 유저의 role 조회
     @Override
     public String getLoginUserRole(String userId) {

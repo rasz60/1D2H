@@ -47,6 +47,12 @@ public class UserController {
         userService.logout(request);
         return ResponseEntity.ok("done");
     }
+    // ID, PW 일치 여부 확인
+    @GetMapping("/infoChk")
+    public ResponseEntity<?> infoChk(@RequestBody LoginRequestDto loginRequestDto, HttpServletRequest request) {
+        String res = userService.infoChk(loginRequestDto, request);
+        return ResponseEntity.ok(res);
+    }
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin-only")
