@@ -3,10 +3,7 @@ package com.raszsixt._d2h.user.service;
 import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
-import com.raszsixt._d2h.user.dto.LoginRequestDto;
-import com.raszsixt._d2h.user.dto.LoginResponseDto;
-import com.raszsixt._d2h.user.dto.SignupDto;
-import com.raszsixt._d2h.user.dto.UserDto;
+import com.raszsixt._d2h.user.dto.*;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import io.jsonwebtoken.security.SecurityException;
@@ -52,15 +49,11 @@ public class UserServiceImpl implements UserService {
         }
         
         // 중복 확인
-        SignupDto dupChkDto = new SignupDto();
-        dupChkDto.setSignupUserId(signupDto.getSignupUserId());
-        dupChkDto.setUserEmailId(signupDto.getUserEmailId());
-        dupChkDto.setUserEmailDomain(signupDto.getUserEmailDomain());
-        dupChkDto.setUserPhone(signupDto.getUserPhone());
+        DupChkDto dupChkDto = DupChkDto.of(signupDto);
         dupChkDto = dupChk(dupChkDto);
 
         String errMsg = "";
-        if ( dupChkDto.isSignupUserIdDupChk() ) {
+        if ( dupChkDto.isUserIdDupChk() ) {
             errMsg = "이미 사용 중인 아이디 입니다.";
         } else if ( dupChkDto.isUserEmailDupChk() ) {
             errMsg = "이미 가입된 이메일 주소 입니다.";
@@ -83,24 +76,27 @@ public class UserServiceImpl implements UserService {
     }
     // 회원 가입 중복 확인
     @Override
-    public SignupDto dupChk(SignupDto signupDto) {
-        // id 중복 확인
-        boolean flag = userRepository.findByUserId(signupDto.getSignupUserId()).isPresent();
-        signupDto.setSignupUserIdDupChk(flag);
+    public DupChkDto dupChk(DupChkDto dupChkDto) {
+        boolean flag = false;
+        // singup일 때 id 중복 확인
+        if ( "signup".equals(dupChkDto.getDupChkType()) ) {
+            flag = userRepository.findByUserIdAndUserSignOutYn(dupChkDto.getUserId(), "N").isPresent();
+            dupChkDto.setUserIdDupChk(flag);
+        }
 
         if (! flag ) {
             // email 중복 확인
-            signupDto.setUserEmail(signupDto.getUserEmailId() + "@" + signupDto.getUserEmailDomain());
-            flag = userRepository.findByUserEmail(signupDto.getUserEmail()).isPresent();
-            signupDto.setUserEmailDupChk(flag);
+            dupChkDto.setUserEmail(dupChkDto.getUserEmail());
+            flag = userRepository.findByUserEmailAndUserSignOutYnAndUserIdNot(dupChkDto.getUserEmail(), "N", dupChkDto.getUserId()).isPresent();
+            dupChkDto.setUserEmailDupChk(flag);
         }
 
         if (! flag ) {
             // 연락처 중복 확인
-            flag = userRepository.findByUserPhone(signupDto.getUserPhone()).isPresent();
-            signupDto.setUserPhoneDupChk(flag);
+            flag = userRepository.findByUserPhoneAndUserSignOutYnAndUserIdNot(dupChkDto.getUserPhone(), "N", dupChkDto.getUserId()).isPresent();
+            dupChkDto.setUserPhoneDupChk(flag);
         }
-        return signupDto;
+        return dupChkDto;
     }
     // 로그인
     @Override
@@ -257,11 +253,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 중복 확인
-        SignupDto dupChkDto = new SignupDto();
-        dupChkDto.setSignupUserId(userDto.getUserId());
-        dupChkDto.setUserEmailId(userDto.getUserEmailId());
-        dupChkDto.setUserEmailDomain(userDto.getUserEmailDomain());
-        dupChkDto.setUserPhone(userDto.getUserPhone());
+        DupChkDto dupChkDto = DupChkDto.of(userDto);
         dupChkDto = dupChk(dupChkDto);
 
         String errMsg = "";

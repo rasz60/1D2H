@@ -1,9 +1,6 @@
 package com.raszsixt._d2h.user.service;
 
-import com.raszsixt._d2h.user.dto.LoginRequestDto;
-import com.raszsixt._d2h.user.dto.LoginResponseDto;
-import com.raszsixt._d2h.user.dto.SignupDto;
-import com.raszsixt._d2h.user.dto.UserDto;
+import com.raszsixt._d2h.user.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -13,7 +10,7 @@ import java.util.Map;
 
 public interface UserService {
     public String signup(SignupDto signupDto) throws IllegalArgumentException;
-    public SignupDto dupChk(SignupDto signupDto);
+    public DupChkDto dupChk(DupChkDto signupDto);
     public LoginResponseDto login(LoginRequestDto loginRequestDto, HttpServletRequest request) throws AuthenticationException;
     public LoginResponseDto authCheck(HttpServletRequest request) throws AuthenticationException;
     public void logout(HttpServletRequest request);

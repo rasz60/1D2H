@@ -1,9 +1,6 @@
 package com.raszsixt._d2h.user.controller;
 
-import com.raszsixt._d2h.user.dto.LoginRequestDto;
-import com.raszsixt._d2h.user.dto.LoginResponseDto;
-import com.raszsixt._d2h.user.dto.SignupDto;
-import com.raszsixt._d2h.user.dto.UserDto;
+import com.raszsixt._d2h.user.dto.*;
 import com.raszsixt._d2h.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.util.Strings;
@@ -23,8 +20,8 @@ public class UserController {
     }
     // 중복확인 (아이디, 메일, 연락처)
     @PostMapping("/dupChk")
-    public ResponseEntity<?> dupChk(@RequestBody SignupDto signupDto) {
-        return ResponseEntity.ok(userService.dupChk(signupDto));
+    public ResponseEntity<?> dupChk(@RequestBody DupChkDto dupChkDto) {
+        return ResponseEntity.ok(userService.dupChk(dupChkDto));
     }
     // 회원가입
     @PostMapping("/signup")
