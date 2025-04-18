@@ -106,6 +106,11 @@ public class UserServiceImpl implements UserService {
         );
         // Principal에서 User 객체 가져오기
         User user = (User) authentication.getPrincipal();
+
+        if ( "Y".equals(user.getUserSignOutYn()) ) {
+            throw new BadCredentialsException("아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+
         String userId = user.getUserId();
         String accessToken = jwtUtil.generateAccessToken(userId); // accesstoken 생성
 
@@ -279,6 +284,53 @@ public class UserServiceImpl implements UserService {
 
         return "회원 정보 수정에 성공했습니다.";
     }
+
+    @Override
+    public String signout(HttpServletRequest request) throws SecurityException {
+        String msg = "";
+        String userId = null;
+        String token = null;
+        boolean isNewToken = false;
+
+        // 1. header에서 token 추출
+        token = jwtUtil.resolveAccessToken(request);
+
+        // 2. token이 null인 경우 refresh token으로 재발급 처리
+        if ( token == null ) {
+            token = jwtUtil.resolveNewAccessToken(request);
+            isNewToken = token != null;
+        }
+
+        // 3. token에서 userId 추출
+        if ( token != null && jwtUtil.validateToken(token) ) {
+            userId = jwtUtil.getUserIdFromToken(token);
+        }
+
+        // 4. token 검증 실패 시
+        if ( token == null || userId == null ) {
+            throw new SecurityException("로그인 유효기간이 만료되었습니다.\n다시 로그인 해주시길 바랍니다.");
+        }
+
+        // 5. signout 처리
+        Optional<User> exsist = userRepository.findByUserId(userId);
+
+        if ( exsist.isEmpty() ) {
+            throw new SecurityException("유저 정보를 찾을 수 없습니다.");
+        }
+
+        User user = exsist.get();
+        if ( "N".equals(user.getUserSignOutYn()) ) {
+            user.setUserSignOutYn("Y");
+            user.setUpdateDate(LocalDateTime.now());
+            user.setUserExpiredDate(LocalDateTime.now());
+            userRepository.save(user);
+        }
+
+        msg = "회원 탈퇴에 성공하였습니다.";
+
+        return msg;
+    }
+
 
     // 로그인 유저의 role 조회
     @Override

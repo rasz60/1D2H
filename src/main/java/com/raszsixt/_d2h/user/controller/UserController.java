@@ -64,6 +64,12 @@ public class UserController {
         String res = userService.setUser(userDto, request);
         return ResponseEntity.ok(res);
     }
+    // 회원탈퇴
+    @DeleteMapping("/signout")
+    public ResponseEntity<?> signout(HttpServletRequest request) {
+        String res = userService.signout(request);
+        return ResponseEntity.ok(res);
+    }
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin-only")

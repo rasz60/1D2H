@@ -34,7 +34,7 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long userMgmtNo;
 
-    @Column(columnDefinition="VARCHAR(100)",unique=true,nullable=false)
+    @Column(columnDefinition="VARCHAR(100)",nullable=false)
     private String userId;
 
     @Column(columnDefinition="VARCHAR(1000)",nullable=false)
@@ -125,11 +125,13 @@ public class User implements UserDetails {
         user.setUserZipCode(userDto.getUserZipCode());
         user.setUserAddr(userDto.getUserAddr());
         user.setUserAddrDesc(userDto.getUserAddrDesc());
-        if ( userDto.getUserBirth() != null ) {
+        if ( userDto.getUserBirth() != null && !userDto.getUserBirth().isEmpty()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/M/d");
             LocalDate date = LocalDate.parse(userDto.getUserBirth(), formatter);
             LocalDateTime dateTime = date.atStartOfDay();
             user.setUserBirth(dateTime);
+        } else {
+            user.setUserBirth(null);
         }
         user.setAlramYn(userDto.isAlarmYn() ? "Y" : "N");
         return user;

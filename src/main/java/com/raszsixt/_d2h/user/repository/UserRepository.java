@@ -25,4 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Transactional
     @Query("UPDATE User u SET u.latestVisitDate = :latestVisitDate WHERE u.userMgmtNo = :userMgmtNo")
     int updateLatestVisitDate(@Param("userMgmtNo") Long userMgmtNo,@Param("latestVisitDate") LocalDateTime latestVisitDate);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.userSignOutYn = :userSignOutYn, u.userExpiredDate = :userExpiredDate WHERE u.userMgmtNo = :userMgmtNo")
+    int updateUserSignOut(@Param("userMgmtNo") Long userMgmtNo,@Param("userSignOutYn") String userSignOutYn, @Param("userExpiredDate") LocalDateTime userExpiredDate);
 }

@@ -19,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     // USERID 존재 여부 확인 후 userDetails 객체로 return
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findByUserId(username);
+        Optional<User> userOptional = userRepository.findByUserIdAndUserSignOutYn(username, "N");
         if ( userOptional.isEmpty() ) {
             throw new UsernameNotFoundException("존재하지 않는 아이디입니다.");
         }
