@@ -17,7 +17,7 @@ import java.util.Set;
 public class JwtFilter extends OncePerRequestFilter {
 
     // token 조회 제외 URL
-    private static final Set<String> EXCLUEDE_URLS = Set.of( "/api/auth", "/api/menu" );
+    private static final Set<String> EXCLUEDE_URLS = Set.of( "/api/auth", "/api/menu", "/api/dlog" );
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;

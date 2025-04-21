@@ -36,8 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBadCredentialException(BadCredentialsException badCredentialsException) {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(),
-                        badCredentialsException.getMessage().isEmpty() ? "아이디 또는 비밀번호가 올바르지 않습니다." : badCredentialsException.getMessage()));
+                .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), "아이디 또는 비밀번호가 올바르지 않습니다."));
     }
 
     // JWT 인증 예외 처리

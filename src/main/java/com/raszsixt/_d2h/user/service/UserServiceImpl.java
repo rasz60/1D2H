@@ -335,7 +335,7 @@ public class UserServiceImpl implements UserService {
     // 로그인 유저의 role 조회
     @Override
     public String getLoginUserRole(String userId) {
-        return userRepository.findByUserId(userId).get().getUserRole();
+        return userRepository.findByUserIdAndUserSignOutYn(userId, "N").get().getUserRole();
     }
 
     public int getAuthLevel(String userRole) {

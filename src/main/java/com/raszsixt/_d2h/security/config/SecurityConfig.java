@@ -51,7 +51,7 @@ public class SecurityConfig {
         httpSecurity
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Spring Security가 세션을 생성하지 않고, 기존 것을 사용하지도 않음 (JWT)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/api/menu/**").permitAll() // /api/auth/ 하위 모든 API는 Permission All
+                        .requestMatchers("/api/auth/**", "/api/menu/**", "/api/dlog/**").permitAll() // /api/auth/ 하위 모든 API는 Permission All
                         .anyRequest().authenticated() // 나머지 API는 모두 Permission 필요
                 )
         ;
