@@ -4,6 +4,7 @@ import com.raszsixt._d2h.devlog.service.DevLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,5 +21,10 @@ public class DevLogController {
     @GetMapping("/groupList")
     public ResponseEntity<?> getGroupList(HttpServletRequest request) {
         return ResponseEntity.ok(devLogService.getGroupList(request));
+    }
+
+    @GetMapping("/itemList/{groupNo}")
+    public ResponseEntity<?> getGroupList(@PathVariable(name = "groupNo") String groupNo, HttpServletRequest request) {
+        return ResponseEntity.ok(devLogService.getItemListWithGroupNo(groupNo, request));
     }
 }

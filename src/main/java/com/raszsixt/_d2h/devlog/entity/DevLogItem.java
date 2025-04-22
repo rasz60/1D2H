@@ -39,7 +39,7 @@ public class DevLogItem {
     private Long itemRegister;
 
     @Column(columnDefinition = "TIMESTAMP")
-    private LocalDateTime itemUpdatetDate;
+    private LocalDateTime itemUpdateDate;
 
     @Column(columnDefinition = "BIGINT")
     private Long itemUpdater;
