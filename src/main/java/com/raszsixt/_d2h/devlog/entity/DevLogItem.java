@@ -26,7 +26,7 @@ public class DevLogItem {
     @Column(columnDefinition = "INT")
     private Long itemSortNo;
 
-    @Column(columnDefinition = "INT")
+    @Column(columnDefinition = "VARCHAR(10)")
     private String itemType; // "DEV", "ISSUE", "INFO"
 
     @Column(columnDefinition = "VARCHAR(200)", nullable = false)

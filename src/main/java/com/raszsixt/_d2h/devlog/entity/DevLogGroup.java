@@ -48,6 +48,6 @@ public class DevLogGroup {
     private String deleteYn;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(referencedColumnName = "group_no")
+    @JoinColumn(referencedColumnName = "group_no", name = "group_no")
     private List<DevLogItem> itemList;
 }

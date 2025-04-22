@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 public interface DevLogGroupRepository extends JpaRepository<DevLogGroup, Long> {
-    List<DevLogGroup> findByDeleteYnAndOpenYnOrderByGroupNo(String deleteYn, String openYn);
+    List<DevLogGroup> findByDeleteYnAndOpenYnOrderByGroupNoDesc(String deleteYn, String openYn);
 }

@@ -15,10 +15,10 @@ public class DevLogItemDto {
     private String itemType;
     private String itemTitle;
     private LocalDateTime itemRegistDate;
-    private String itemRegisterNo;
+    private Long itemRegisterNo;
     private String itemRegisterId;
     private LocalDateTime itemUpdateDate;
-    private String itemUpdaterNo;
+    private Long itemUpdaterNo;
     private String itemUpdaterId;
     private String progress;
     private boolean openYn;
@@ -26,6 +26,18 @@ public class DevLogItemDto {
 
     public static DevLogItemDto of(DevLogItem devLogItem) {
         DevLogItemDto dto = new DevLogItemDto();
+
+        dto.setItemNo(devLogItem.getItemNo());
+        dto.setGroupNo(devLogItem.getGroupNo().getGroupNo());
+        dto.setItemSortNo(devLogItem.getItemSortNo());
+        dto.setItemType(devLogItem.getItemType());
+        dto.setItemTitle(devLogItem.getItemTitle());
+        dto.setItemRegistDate(devLogItem.getItemRegistDate());
+        dto.setItemRegisterNo(devLogItem.getItemRegister());
+        dto.setItemUpdaterNo(devLogItem.getItemUpdater());
+        dto.setProgress(devLogItem.getProgress());
+        dto.setOpenYn("Y".equals(devLogItem.getOpenYn()));
+        dto.setDeleteYn("Y".equals(devLogItem.getDeleteYn()));
 
         return dto;
     }

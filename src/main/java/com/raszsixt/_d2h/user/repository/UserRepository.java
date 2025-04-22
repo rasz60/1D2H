@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUserMgmtNo(Long userMgmtNo);
     Optional<User> findByUserId(String userId);
     Optional<User> findByUserEmailAndUserSignOutYnAndUserIdNot(String userEmail, String userSignOutYn, String userId);
     Optional<User> findByUserPhoneAndUserSignOutYnAndUserIdNot(String userPhone, String userSignOutYn, String userId);
