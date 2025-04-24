@@ -20,10 +20,16 @@ public class DevLogGroupDto {
     private LocalDateTime groupUpdateDate;
     private Long groupUpdateNo;
     private String groupUpdateId;
+
     private String progress;
     private boolean openYn;
     private boolean deleteYn;
+    private boolean likeYn;
+    private boolean subsYn;
+
     private int itemCnt;
+    private int likeCnt;
+    private int subsCnt;
 
     public static DevLogGroupDto of(DevLogGroup devLogGroup) {
         DevLogGroupDto dto = new DevLogGroupDto();

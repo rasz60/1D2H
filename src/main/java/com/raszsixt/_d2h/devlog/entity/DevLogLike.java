@@ -21,7 +21,7 @@ public class DevLogLike {
     private Long itemLikeNo;
 
     @Column(columnDefinition = "VARCHAR(100)")
-    private Long itemLikeType;
+    private String itemLikeType;
 
     @Column(columnDefinition = "BIGINT")
     private Long itemId;

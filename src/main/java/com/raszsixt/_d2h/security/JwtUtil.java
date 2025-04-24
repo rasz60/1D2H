@@ -2,6 +2,7 @@ package com.raszsixt._d2h.security;
 
 import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
+import com.raszsixt._d2h.user.dto.LoginResponseDto;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import io.jsonwebtoken.security.Keys;
@@ -14,9 +15,7 @@ import io.jsonwebtoken.*;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 public class JwtUtil {
@@ -133,6 +132,40 @@ public class JwtUtil {
     public Claims getClaims(String token) {
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)); // HMAC-SHA로 SECRET_KEY Byte 배열을 인코딩
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody(); // token 값을 key와 jwt parser로 확인 후 jwt claims 객체의 payload 리턴
+    }
+
+    // jwt token으로 id 가져오기
+    public Map<String, Object> getUserIdFromToken(HttpServletRequest request) {
+        Map<String, Object> rst = new HashMap<>();
+
+        String token = null;
+        String refreshToken = null;
+        String userId = null;
+        String role = "guest";
+
+        // 1. request에서 Access Token 추출
+        token = this.resolveAccessToken(request);
+
+        // 2. request Access Token 존재하지만, 유효하지 않을 때
+        if ( token != null && ! this.validateToken(token) ) {
+            // 2-1. token 초기화
+            token = null;
+        }
+
+        // 3. request에 Access Token이 없는 경우
+        if ( token == null ) {
+            // 3-1. Refresh Token 조회하여 새로운 Access Token 발급
+            token = this.resolveNewAccessToken(request);
+            if ( token != null ) rst.put("new-access-token", token);
+        }
+
+        // 4. token에서 추출한 userId에 userRole 추가
+        if ( token != null && this.validateToken(token)) {
+            userId = this.getUserIdFromToken(token);
+            rst.put("userId", userId);
+        }
+
+        return rst;
     }
 
 }
