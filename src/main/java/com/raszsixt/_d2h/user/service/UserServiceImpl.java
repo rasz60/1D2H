@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
@@ -349,5 +350,43 @@ public class UserServiceImpl implements UserService {
             auth = 3;
         }
         return auth;
+    }
+    @Override
+    public String findUserIdFromUserMgmtNo(Long userMgmtNo) {
+        String userId = null;
+        if ( userMgmtNo != null && userMgmtNo >= 0 ) {
+            Optional<User> exsist = userRepository.findByUserMgmtNo(userMgmtNo);
+            if ( exsist.isPresent() ) {
+                User user = exsist.get();
+                userId = user.getUserId();
+            }
+        }
+        return userId;
+    }
+
+    @Override
+    public Long findUserMgmtNoFromUserId(String userId) {
+        Long userMgmtNo = null;
+        if ( userId != null && !userId.isEmpty() && !"".equals(userId) ) {
+            Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn((String) userId, "N");
+            if ( exsist.isPresent() ) {
+                userMgmtNo = exsist.get().getUserMgmtNo();
+            }
+        }
+        return userMgmtNo;
+    }
+
+    @Override
+    public UserDto findUserInfoFromHttpRequest(HttpServletRequest request) {
+        UserDto dto = null;
+        Map<String, Object> loginInfo = jwtUtil.getUserIdFromToken(request);
+
+        if ( loginInfo.containsKey("userId") ) {
+            Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn((String) loginInfo.get("userId"), "N");
+            if ( exsist.isPresent() ) {
+                dto = UserDto.of(exsist.get());
+            }
+        }
+        return dto;
     }
 }

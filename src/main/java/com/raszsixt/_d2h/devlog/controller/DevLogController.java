@@ -1,12 +1,10 @@
 package com.raszsixt._d2h.devlog.controller;
 
+import com.raszsixt._d2h.devlog.dto.DevLogReqDto;
 import com.raszsixt._d2h.devlog.service.DevLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/dlog")
@@ -26,5 +24,10 @@ public class DevLogController {
     @GetMapping("/itemList/{groupNo}")
     public ResponseEntity<?> getGroupList(@PathVariable(name = "groupNo") String groupNo, HttpServletRequest request) {
         return ResponseEntity.ok(devLogService.getItemListWithGroupNo(groupNo, request));
+    }
+
+    @PostMapping("/updateLikes")
+    public ResponseEntity<?> updateLikes(@RequestBody DevLogReqDto devLogReqDto, HttpServletRequest request) {
+        return ResponseEntity.ok(devLogService.updateLikes(devLogReqDto, request));
     }
 }

@@ -19,4 +19,7 @@ public interface UserService {
     public String setUser(UserDto userDto, HttpServletRequest request)  throws IllegalArgumentException;
     public String signout(HttpServletRequest request) throws SecurityException;
     public String getLoginUserRole(String userId);
+    public UserDto findUserInfoFromHttpRequest(HttpServletRequest request);
+    public String findUserIdFromUserMgmtNo(Long userMgmtNo);
+    public Long findUserMgmtNoFromUserId(String userId);
 }
