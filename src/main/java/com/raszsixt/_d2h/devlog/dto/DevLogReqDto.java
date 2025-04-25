@@ -8,4 +8,11 @@ import lombok.NoArgsConstructor;
 public class DevLogReqDto {
     private String groupNo;
     private String itemNo;
+
+    private Long register;
+    private Long updater;
+
+    private Long targetItemId;
+    private String targetItemType;
+    private Long targetUserMgmtNo;
 }

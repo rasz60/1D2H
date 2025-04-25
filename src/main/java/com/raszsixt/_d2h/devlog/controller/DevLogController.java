@@ -30,4 +30,9 @@ public class DevLogController {
     public ResponseEntity<?> updateLikes(@RequestBody DevLogReqDto devLogReqDto, HttpServletRequest request) {
         return ResponseEntity.ok(devLogService.updateLikes(devLogReqDto, request));
     }
+
+    @PostMapping("/updateSubs")
+    public ResponseEntity<?> updateSubs(@RequestBody DevLogReqDto devLogReqDto, HttpServletRequest request) {
+        return ResponseEntity.ok(devLogService.updateSubs(devLogReqDto, request));
+    }
 }
