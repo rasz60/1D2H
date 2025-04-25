@@ -24,6 +24,9 @@ public class DevLogVisitLog {
     @Column(columnDefinition = "BIGINT")
     private Long itemNo;
 
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String itemType;
+
     @Column(columnDefinition = "BIGINT")
     private Long userMgmtNo;
 

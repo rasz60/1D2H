@@ -4,17 +4,13 @@ import com.raszsixt._d2h.devlog.dto.DevLogGroupDto;
 import com.raszsixt._d2h.devlog.dto.DevLogItemDto;
 import com.raszsixt._d2h.devlog.entity.DevLogGroup;
 import com.raszsixt._d2h.devlog.entity.DevLogItem;
-import com.raszsixt._d2h.devlog.repository.DevLogGroupRepository;
-import com.raszsixt._d2h.devlog.repository.DevLogItemRepository;
-import com.raszsixt._d2h.devlog.repository.DevLogLikeRepository;
-import com.raszsixt._d2h.devlog.repository.DevLogSubsRepository;
+import com.raszsixt._d2h.devlog.repository.*;
 import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.user.entity.User;
 import com.raszsixt._d2h.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,14 +21,22 @@ public class DevLogServiceImpl implements DevLogService {
     private final DevLogItemRepository devLogitemRepository;
     private final DevLogLikeRepository devLogLikeRepository;
     private final DevLogSubsRepository devLogSubsRepository;
+    private final DevLogVisitLogRepository devLogVisitLogRepository;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public DevLogServiceImpl(DevLogGroupRepository devLogGroupRepository, DevLogItemRepository devLogitemRepository, DevLogLikeRepository devLogLikeRepository, DevLogSubsRepository devLogSubsRepository,UserRepository userRepository, JwtUtil jwtUtil) {
+    public DevLogServiceImpl(DevLogGroupRepository devLogGroupRepository,
+                             DevLogItemRepository devLogitemRepository,
+                             DevLogLikeRepository devLogLikeRepository,
+                             DevLogSubsRepository devLogSubsRepository,
+                             DevLogVisitLogRepository devLogVisitLogRepository,
+                             UserRepository userRepository,
+                             JwtUtil jwtUtil) {
         this.devLogGroupRepository = devLogGroupRepository;
         this.devLogitemRepository = devLogitemRepository;
         this.devLogLikeRepository = devLogLikeRepository;
         this.devLogSubsRepository = devLogSubsRepository;
+        this.devLogVisitLogRepository = devLogVisitLogRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
@@ -50,10 +54,10 @@ public class DevLogServiceImpl implements DevLogService {
 
             Long groupNo = group.getGroupNo();
             String itemType = "DLG";
-            int likeCnt = devLogLikeRepository.countByItemIdAndItemLikeType(groupNo, itemType);
+            int likeCnt = devLogLikeRepository.countByItemIdAndItemType(groupNo, itemType);
             dto.setLikeCnt(likeCnt);
 
-            int subsCnt = devLogSubsRepository.countByItemIdAndItemSubsType(groupNo, itemType);
+            int subsCnt = devLogSubsRepository.countByItemIdAndItemType(groupNo, itemType);
             dto.setSubsCnt(subsCnt);
 
             Map<String, Object> loginInfo = jwtUtil.getUserIdFromToken(request);
@@ -61,9 +65,9 @@ public class DevLogServiceImpl implements DevLogService {
                 exsist = userRepository.findByUserIdAndUserSignOutYn((String) loginInfo.get("userId"), "N");
                 if ( exsist.isPresent() ) {
                     Long userMgmtNo = exsist.get().getUserMgmtNo();
-                    int likeYn = devLogLikeRepository.countByItemIdAndItemLikeTypeAndItemLikeUserNo(groupNo, itemType, userMgmtNo);
+                    int likeYn = devLogLikeRepository.countByItemIdAndItemTypeAndItemLikeUserNo(groupNo, itemType, userMgmtNo);
                     dto.setLikeYn(likeYn > 0);
-                    int subsYn = devLogSubsRepository.countByItemIdAndItemSubsTypeAndItemSubsRegister(groupNo, itemType, userMgmtNo);
+                    int subsYn = devLogSubsRepository.countByItemIdAndItemTypeAndItemSubsRegister(groupNo, itemType, userMgmtNo);
                     dto.setSubsYn(subsYn > 0);
                 }
             }
@@ -88,6 +92,26 @@ public class DevLogServiceImpl implements DevLogService {
             if ( exsist.isPresent() ) {
                 User updater = exsist.get();
                 dto.setItemRegisterId(updater.getUserId());
+            }
+
+            Long itemNo = item.getItemNo();
+            String itemType = "DLI";
+            int likeCnt = devLogLikeRepository.countByItemIdAndItemType(itemNo, itemType);
+            dto.setLikeCnt(likeCnt);
+
+            int viewCnt = devLogVisitLogRepository.countByItemNoAndItemType(itemNo, itemType);
+            dto.setViewCnt(viewCnt);
+
+            Map<String, Object> loginInfo = jwtUtil.getUserIdFromToken(request);
+            if ( loginInfo.containsKey("userId") ) {
+                exsist = userRepository.findByUserIdAndUserSignOutYn((String) loginInfo.get("userId"), "N");
+                if ( exsist.isPresent() ) {
+                    Long userMgmtNo = exsist.get().getUserMgmtNo();
+                    int likeYn = devLogLikeRepository.countByItemIdAndItemTypeAndItemLikeUserNo(itemNo, itemType, userMgmtNo);
+                    dto.setLikeYn(likeYn > 0);
+                    int viewYn = devLogVisitLogRepository.countByItemNoAndItemTypeAndUserMgmtNo(itemNo, itemType, userMgmtNo);
+                    dto.setViewYn(viewYn > 0);
+                }
             }
             return dto;
         }).toList();

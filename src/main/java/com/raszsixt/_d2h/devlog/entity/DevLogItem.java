@@ -32,6 +32,9 @@ public class DevLogItem {
     @Column(columnDefinition = "VARCHAR(200)", nullable = false)
     private String itemTitle;
 
+    @Column(columnDefinition = "TEXT")
+    private String itemContents;
+
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime itemRegistDate;
 

@@ -21,8 +21,14 @@ public class DevLogItemDto {
     private Long itemUpdaterNo;
     private String itemUpdaterId;
     private String progress;
+
     private boolean openYn;
     private boolean deleteYn;
+    private boolean likeYn;
+    private boolean viewYn;
+
+    private int likeCnt;
+    private int viewCnt;
 
     public static DevLogItemDto of(DevLogItem devLogItem) {
         DevLogItemDto dto = new DevLogItemDto();

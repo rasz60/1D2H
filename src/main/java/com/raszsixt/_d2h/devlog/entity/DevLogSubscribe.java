@@ -21,7 +21,7 @@ public class DevLogSubscribe {
     private Long itemSubsNo;
 
     @Column(columnDefinition = "VARCHAR(100)")
-    private String itemSubsType;
+    private String itemType;
 
     @Column(columnDefinition = "BIGINT")
     private Long itemId;

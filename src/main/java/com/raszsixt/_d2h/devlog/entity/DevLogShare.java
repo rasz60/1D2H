@@ -21,7 +21,7 @@ public class DevLogShare {
     private Long itemShareNo;
 
     @Column(columnDefinition = "VARCHAR(100)")
-    private Long itemShareType;
+    private Long itemType;
 
     @Column(columnDefinition = "BIGINT")
     private Long itemId;
