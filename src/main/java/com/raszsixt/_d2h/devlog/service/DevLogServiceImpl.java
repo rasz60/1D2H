@@ -2,11 +2,9 @@ package com.raszsixt._d2h.devlog.service;
 
 import com.raszsixt._d2h.devlog.dto.DevLogGroupDto;
 import com.raszsixt._d2h.devlog.dto.DevLogItemDto;
+import com.raszsixt._d2h.devlog.dto.DevLogItemLangDto;
 import com.raszsixt._d2h.devlog.dto.DevLogReqDto;
-import com.raszsixt._d2h.devlog.entity.DevLogGroup;
-import com.raszsixt._d2h.devlog.entity.DevLogItem;
-import com.raszsixt._d2h.devlog.entity.DevLogLike;
-import com.raszsixt._d2h.devlog.entity.DevLogSubscribe;
+import com.raszsixt._d2h.devlog.entity.*;
 import com.raszsixt._d2h.devlog.repository.*;
 import com.raszsixt._d2h.user.dto.UserDto;
 import com.raszsixt._d2h.user.service.UserService;
@@ -25,6 +23,8 @@ public class DevLogServiceImpl implements DevLogService {
     private final DevLogLikeRepository devLogLikeRepository;
     private final DevLogSubsRepository devLogSubsRepository;
     private final DevLogVisitLogRepository devLogVisitLogRepository;
+    private final DevLogItemLangRepository devLogItemLangRepository;
+    private final DevLogLangRepository devLogLangRepository;
     private final UserService userService;
 
     public DevLogServiceImpl(DevLogGroupRepository devLogGroupRepository,
@@ -32,12 +32,16 @@ public class DevLogServiceImpl implements DevLogService {
                              DevLogLikeRepository devLogLikeRepository,
                              DevLogSubsRepository devLogSubsRepository,
                              DevLogVisitLogRepository devLogVisitLogRepository,
+                             DevLogItemLangRepository devLogItemLangRepository,
+                             DevLogLangRepository devLogLangRepository,
                              UserService userService) {
         this.devLogGroupRepository = devLogGroupRepository;
         this.devLogitemRepository = devLogitemRepository;
         this.devLogLikeRepository = devLogLikeRepository;
         this.devLogSubsRepository = devLogSubsRepository;
         this.devLogVisitLogRepository = devLogVisitLogRepository;
+        this.devLogItemLangRepository = devLogItemLangRepository;
+        this.devLogLangRepository = devLogLangRepository;
         this.userService = userService;
     }
 
@@ -120,7 +124,13 @@ public class DevLogServiceImpl implements DevLogService {
                 dto.setViewYn(getViewYn(devLogReqDto));
             }
 
-            // 8. dto list에 추가
+            // 8. 사용 언어
+            List<DevLogItemLang> langs = getItemLang(item);
+            if ( langs != null ) {
+                dto.setItemLangs(DevLogItemLangDto.of(langs));
+            }
+
+            // 9. dto list에 추가
             dtos.add(dto);
         }
 
@@ -242,6 +252,11 @@ public class DevLogServiceImpl implements DevLogService {
                         devLogReqDto.getTargetItemId(),
                         devLogReqDto.getTargetItemType(),
                         devLogReqDto.getTargetUserMgmtNo()).orElse(null);
+    }
+
+    public List<DevLogItemLang> getItemLang(DevLogItem item) {
+        return devLogItemLangRepository
+                .findByItemNo_itemNoOrderByLangId(item.getItemNo());
     }
 
     @Override

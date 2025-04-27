@@ -18,11 +18,9 @@ public class DevLogLang {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long langId;
 
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
-    private String langSide; // "BACK" , "FRONT", "DB", "LIBRARY", "PLUGIN", "ETC"
-
-    @Column(columnDefinition = "VARCHAR(100)", nullable = false)
-    private String langColors; // "BACK" : ?, "FRONT" : ?, "DB" : ?, "LIBRARY" : ?, "PLUGIN" : ?, "ETC" : ?
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "langTypeId", name = "langTypeId")
+    private DevLogLangType langTypeId;// "BACK" , "FRONT", "DB", "LIBRARY", "PLUGIN", "ETC"
 
     @Column(columnDefinition = "VARCHAR(100)", nullable = false)
     private String langName;
