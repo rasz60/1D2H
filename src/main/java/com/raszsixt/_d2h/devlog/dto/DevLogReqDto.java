@@ -15,4 +15,18 @@ public class DevLogReqDto {
     private Long targetItemId;
     private String targetItemType;
     private Long targetUserMgmtNo;
+
+    public DevLogReqDto(String groupNo, String itemNo) {
+        this.groupNo = groupNo;
+        this.itemNo = itemNo;
+    }
+
+    public Long getLongTypeGroupNo() {
+        return Long.parseLong(this.groupNo);
+    }
+
+
+    public Long getLongTypeItemNo() {
+        return Long.parseLong(this.itemNo);
+    }
 }

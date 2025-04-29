@@ -15,4 +15,5 @@ public interface DevLogService {
     public String updateLikes(DevLogReqDto devLogReqDto, HttpServletRequest request) throws IllegalArgumentException, SecurityException;
     public String updateSubs(DevLogReqDto devLogReqDto, HttpServletRequest request) throws IllegalArgumentException, SecurityException;
     public DevLogReqDto setTargetInfo(DevLogReqDto devLogReqDto, HttpServletRequest request) throws SecurityException;
+    public DevLogItemDto itemDetails(DevLogReqDto devLogReqDto, HttpServletRequest request);
 }

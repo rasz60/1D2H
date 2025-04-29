@@ -282,4 +282,47 @@ public class DevLogServiceImpl implements DevLogService {
         return devLogReqDto;
     }
 
+    public DevLogItemDto itemDetails(DevLogReqDto devLogReqDto, HttpServletRequest request) {
+        DevLogItemDto dto = null;
+        
+        // 1. item 조회
+        DevLogItem item = devLogitemRepository.findByDeleteYnAndGroupNo_GroupNoAndItemNo("N", devLogReqDto.getLongTypeGroupNo(), devLogReqDto.getLongTypeItemNo()).orElse(null);
+        
+        // 2. 존재하는 item일 때
+        if ( item != null ) {
+            // 3. 로그인 정보
+            UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
+
+            // 4. dto로 전환
+            dto = DevLogItemDto.of(item);
+
+            // 5. register 조회
+            String register = userService.findUserIdFromUserMgmtNo(item.getItemRegister());
+            dto.setItemRegisterId(register);
+
+            // 6. updater 조회
+            String updater = userService.findUserIdFromUserMgmtNo(item.getItemUpdater());
+            dto.setItemUpdaterId(updater);
+
+            // 7. 좋아요, 조회수 조회
+            devLogReqDto.setTargetItemId(item.getItemNo());
+            dto.setLikeCnt(getLikeCnt(devLogReqDto));
+            dto.setViewCnt(getViewCnt(devLogReqDto));
+
+            // 8. 로그인 유저의 좋아요, 조회 여부 조회
+            if (loginInfo != null) {
+                dto.setLikeYn(getLikeYn(devLogReqDto));
+                dto.setViewYn(getViewYn(devLogReqDto));
+            }
+
+            // 9. 사용 언어
+            List<DevLogItemLang> langs = getItemLang(item);
+            if (langs != null) {
+                dto.setItemLangs(DevLogItemLangDto.of(langs));
+            }
+        }
+
+        return dto;
+    }
+
 }

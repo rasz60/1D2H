@@ -35,4 +35,9 @@ public class DevLogController {
     public ResponseEntity<?> updateSubs(@RequestBody DevLogReqDto devLogReqDto, HttpServletRequest request) {
         return ResponseEntity.ok(devLogService.updateSubs(devLogReqDto, request));
     }
+
+    @GetMapping("/itemDetails/{groupNo}/{itemNo}")
+    public ResponseEntity<?> itemDetails(@PathVariable(name = "groupNo") String groupNo, @PathVariable(name = "itemNo") String itemNo, HttpServletRequest request) {
+        return ResponseEntity.ok(devLogService.itemDetails(new DevLogReqDto(groupNo, itemNo), request));
+    }
 }
