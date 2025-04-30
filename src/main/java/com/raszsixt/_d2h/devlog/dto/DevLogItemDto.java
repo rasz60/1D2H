@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Data
@@ -15,10 +16,11 @@ public class DevLogItemDto {
     private Long itemSortNo;
     private String itemType;
     private String itemTitle;
-    private LocalDateTime itemRegistDate;
+    private String itemContents;
+    private String itemRegistDate;
     private Long itemRegisterNo;
     private String itemRegisterId;
-    private LocalDateTime itemUpdateDate;
+    private String itemUpdateDate;
     private Long itemUpdaterNo;
     private String itemUpdaterId;
     private String progress;
@@ -41,8 +43,14 @@ public class DevLogItemDto {
         dto.setItemSortNo(devLogItem.getItemSortNo());
         dto.setItemType(devLogItem.getItemType());
         dto.setItemTitle(devLogItem.getItemTitle());
-        dto.setItemRegistDate(devLogItem.getItemRegistDate());
+        dto.setItemContents(devLogItem.getItemContents());
+        if (devLogItem.getItemRegistDate() != null ) {
+            dto.setItemRegistDate(devLogItem.getItemRegistDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+        }
         dto.setItemRegisterNo(devLogItem.getItemRegister());
+        if (devLogItem.getItemUpdateDate() != null ) {
+            dto.setItemUpdateDate(devLogItem.getItemUpdateDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+        }
         dto.setItemUpdaterNo(devLogItem.getItemUpdater());
         dto.setProgress(devLogItem.getProgress());
         dto.setOpenYn("Y".equals(devLogItem.getOpenYn()));
