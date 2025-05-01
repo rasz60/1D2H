@@ -10,15 +10,20 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class DevLogItemLangDto {
+    private Long itemLangId;
+    private Long langTypeId;
     private String langType;
     private String langTypeColor;
+    private Long langId;
     private String langName;
 
     public static DevLogItemLangDto of(DevLogItemLang devLogItemLang) {
         DevLogItemLangDto dto = new DevLogItemLangDto();
-
+        dto.setItemLangId(devLogItemLang.getItemLangId());
+        dto.setLangTypeId(devLogItemLang.getLangId().getLangTypeId().getLangTypeId());
         dto.setLangType(devLogItemLang.getLangId().getLangTypeId().getLangType());
         dto.setLangTypeColor(devLogItemLang.getLangId().getLangTypeId().getLangColor());
+        dto.setLangId(devLogItemLang.getLangId().getLangId());
         dto.setLangName(devLogItemLang.getLangId().getLangName());
 
         return dto;
@@ -27,13 +32,7 @@ public class DevLogItemLangDto {
     public static List<DevLogItemLangDto> of(List<DevLogItemLang> devLogItemLangList) {
         List<DevLogItemLangDto> dtos = new ArrayList<>();
         for ( DevLogItemLang itemLang : devLogItemLangList ) {
-            DevLogItemLangDto dto = new DevLogItemLangDto();
-
-            dto.setLangType(itemLang.getLangId().getLangTypeId().getLangType());
-            dto.setLangTypeColor(itemLang.getLangId().getLangTypeId().getLangColor());
-            dto.setLangName(itemLang.getLangId().getLangName());
-
-            dtos.add(dto);
+            dtos.add(DevLogItemLangDto.of(itemLang));
         }
         return dtos;
     }

@@ -26,6 +26,7 @@ public class DevLogItemDto {
     private String progress;
 
     private boolean openYn;
+    private boolean editYn;
     private boolean deleteYn;
     private boolean likeYn;
     private boolean viewYn;

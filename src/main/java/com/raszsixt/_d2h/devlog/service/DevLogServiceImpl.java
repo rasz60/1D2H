@@ -1,19 +1,19 @@
 package com.raszsixt._d2h.devlog.service;
 
-import com.raszsixt._d2h.devlog.dto.DevLogGroupDto;
-import com.raszsixt._d2h.devlog.dto.DevLogItemDto;
-import com.raszsixt._d2h.devlog.dto.DevLogItemLangDto;
-import com.raszsixt._d2h.devlog.dto.DevLogReqDto;
+import com.raszsixt._d2h.devlog.dto.*;
 import com.raszsixt._d2h.devlog.entity.*;
 import com.raszsixt._d2h.devlog.repository.*;
 import com.raszsixt._d2h.user.dto.UserDto;
 import com.raszsixt._d2h.user.service.UserService;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -282,6 +282,8 @@ public class DevLogServiceImpl implements DevLogService {
         return devLogReqDto;
     }
 
+    @Override
+    @Transactional
     public DevLogItemDto itemDetails(DevLogReqDto devLogReqDto, HttpServletRequest request) {
         DevLogItemDto dto = null;
         
@@ -313,6 +315,8 @@ public class DevLogServiceImpl implements DevLogService {
             if (loginInfo != null) {
                 dto.setLikeYn(getLikeYn(devLogReqDto));
                 dto.setViewYn(getViewYn(devLogReqDto));
+                dto.setEditYn(Objects.equals(loginInfo.getUserMgmtNo(), item.getItemRegister()));
+                dto.setDeleteYn(Objects.equals(loginInfo.getUserMgmtNo(), item.getItemRegister()));
             }
 
             // 9. 사용 언어
@@ -320,9 +324,101 @@ public class DevLogServiceImpl implements DevLogService {
             if (langs != null) {
                 dto.setItemLangs(DevLogItemLangDto.of(langs));
             }
+
+            // 10. 조회 로그
+            int viewCnt = devLogVisitLogRepository.countByItemNoAndItemTypeAndUserMgmtNo(item.getItemNo(), "DLI", loginInfo.getUserMgmtNo());
+            if ( viewCnt == 0 ) {
+                DevLogVisitLog visitLog = new DevLogVisitLog();
+                visitLog.setItemNo(item.getItemNo());
+                visitLog.setItemType("DLI");
+                visitLog.setUserMgmtNo(loginInfo.getUserMgmtNo());
+                devLogVisitLogRepository.save(visitLog);
+            }
         }
 
         return dto;
     }
 
+    @Override
+    public List<DevLogLangDto> getLangList(HttpServletRequest request) {
+        List<DevLogLang> langList = devLogLangRepository.findAll();
+
+        return DevLogLangDto.of(langList);
+    }
+
+    @Override
+    @Transactional
+    public String itemSave(DevLogItemDto devLogItemDto,HttpServletRequest request) {
+        UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
+
+        if ( loginInfo == null ) {
+            throw new SecurityException("");
+        }
+
+        Long groupNo = devLogItemDto.getGroupNo();
+        Long itemNo = devLogItemDto.getItemNo();
+
+        if ( itemNo == null ) {
+            DevLogItem item = DevLogItem.of(devLogItemDto);
+        }
+
+
+        DevLogItem originItem = devLogitemRepository.findByDeleteYnAndGroupNo_GroupNoAndItemNo("N", groupNo, itemNo).orElse(null);
+
+        if ( originItem == null ) {
+            throw new RuntimeException("존재하지 않는 게시물입니다.");
+        }
+
+        DevLogGroup group = devLogGroupRepository.findById(groupNo).orElse(null);
+
+        if ( group == null ) {
+            throw new IllegalArgumentException("존재하지 않는 그룹입니다.");
+        }
+
+        originItem.setItemTitle(devLogItemDto.getItemTitle());
+        originItem.setGroupNo(group);
+        originItem.setItemContents(devLogItemDto.getItemContents());
+        originItem.setItemUpdater(loginInfo.getUserMgmtNo());
+        originItem.setItemUpdateDate(LocalDateTime.now());
+        devLogitemRepository.save(originItem);
+
+        int delCnt = devLogItemLangRepository.deleteByItemNo_itemNo(itemNo);
+        for ( DevLogItemLangDto itemLangDto : devLogItemDto.getItemLangs() ) {
+            DevLogLang lang = devLogLangRepository.findById(itemLangDto.getLangId()).orElse(null);
+
+            if ( lang != null ) {
+                DevLogItemLang devLogItemLang = new DevLogItemLang();
+                devLogItemLang.setItemNo(originItem);
+                devLogItemLang.setLangId(lang);
+                devLogItemLangRepository.save(devLogItemLang);
+            }
+        }
+
+        return "success";
+    }
+
+    @Override
+    @Transactional
+    public String itemDelete(Long itemNo,HttpServletRequest request) {
+        UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
+
+        if ( loginInfo == null ) {
+            throw new SecurityException("");
+        }
+
+        DevLogItem item = devLogitemRepository.findById(itemNo).orElse(null);
+
+        if ( item != null ) {
+            int delViewCnt = devLogVisitLogRepository.deleteByItemNo_itemNo(itemNo);
+            int delLikeCnt = devLogLikeRepository.deleteByItemNo_itemNo(itemNo);
+            int delLangCnt = devLogItemLangRepository.deleteByItemNo_itemNo(itemNo);
+
+            item.setItemUpdater(loginInfo.getUserMgmtNo());
+            item.setItemUpdateDate(LocalDateTime.now());
+            item.setDeleteYn("Y");
+            devLogitemRepository.save(item);
+        }
+
+        return "success";
+    }
 }

@@ -1,12 +1,15 @@
 package com.raszsixt._d2h.devlog.entity;
 
+import com.raszsixt._d2h.devlog.dto.DevLogItemDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Table(name = "1D2H_DEVLOG_ITEM")
@@ -55,4 +58,13 @@ public class DevLogItem {
 
     @Column(columnDefinition = "VARCHAR(10)", nullable = false)
     private String deleteYn;
+
+    public static DevLogItem of(DevLogItemDto devLogItemDto) {
+        DevLogItem item = new DevLogItem();
+
+
+        return item;
+    }
+
+
 }

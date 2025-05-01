@@ -7,4 +7,6 @@ public interface DevLogVisitLogRepository extends JpaRepository<DevLogVisitLog, 
     int countByItemNoAndItemType(Long itemNo, String itemType);
 
     int countByItemNoAndItemTypeAndUserMgmtNo(Long itemNo, String itemType, Long userMgmtNo);
+
+    int deleteByItemNo_itemNo(Long itemNo);
 }

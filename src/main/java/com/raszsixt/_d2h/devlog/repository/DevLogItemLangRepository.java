@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface DevLogItemLangRepository extends JpaRepository<DevLogItemLang, Long> {
     List<DevLogItemLang> findByItemNo_itemNoOrderByLangId(Long itemNo);
+    int deleteByItemNo_itemNo(Long itemNo);
 }

@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.devlog.entity;
 
+import com.raszsixt._d2h.devlog.dto.DevLogItemLangDto;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
