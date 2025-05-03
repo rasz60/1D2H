@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 public class DevLogReqDto {
     private String groupNo;
     private String itemNo;
+    private String groupTitle;
+    private String progress;
 
     private Long register;
     private Long updater;

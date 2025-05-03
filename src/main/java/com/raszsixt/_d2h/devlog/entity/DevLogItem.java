@@ -62,6 +62,10 @@ public class DevLogItem {
     public static DevLogItem of(DevLogItemDto devLogItemDto) {
         DevLogItem item = new DevLogItem();
 
+        item.setItemNo(devLogItemDto.getItemNo());
+        item.setItemType("DLI");
+        item.setItemTitle(devLogItemDto.getItemTitle());
+        item.setItemContents(devLogItemDto.getItemContents());
 
         return item;
     }

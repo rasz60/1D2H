@@ -87,6 +87,47 @@ public class DevLogServiceImpl implements DevLogService {
     }
 
     @Override
+    public String groupSave(DevLogReqDto devLogReqDto, HttpServletRequest request) {
+        UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
+        if ( loginInfo == null ) {
+            throw new SecurityException("");
+        }
+
+        DevLogGroup group = new DevLogGroup();
+
+        group.setGroupTitle(devLogReqDto.getGroupTitle());
+        group.setGroupRegister(loginInfo.getUserMgmtNo());
+        group.setGroupRegistDate(LocalDateTime.now());
+        group.setOpenYn("Y");
+        group.setDeleteYn("N");
+        group.setProgress("Y");
+
+        devLogGroupRepository.save(group);
+
+        return "Success";
+    }
+
+    @Override
+    public String updateGroupProgress(DevLogReqDto devLogReqDto, HttpServletRequest request) {
+        UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
+        if ( loginInfo == null ) {
+            throw new SecurityException("");
+        }
+
+        DevLogGroup group = devLogGroupRepository.findById(Long.parseLong(devLogReqDto.getGroupNo())).orElse(null);
+        if ( group == null ) {
+            throw new IllegalArgumentException("존재하지 않는 그룹입니다.");
+        }
+
+        group.setProgress(devLogReqDto.getProgress());
+        group.setGroupUpdater(loginInfo.getUserMgmtNo());
+        group.setGroupUpdateDate(LocalDateTime.now());
+        devLogGroupRepository.save(group);
+
+        return "Success";
+    }
+
+    @Override
     public List<DevLogItemDto> getItemListWithGroupNo(String groupNo, HttpServletRequest request) {
         List<DevLogItemDto> dtos = new ArrayList<>();
         
@@ -350,45 +391,69 @@ public class DevLogServiceImpl implements DevLogService {
     @Transactional
     public String itemSave(DevLogItemDto devLogItemDto,HttpServletRequest request) {
         UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
-
+        // 1. 로그인 되지 않았을 때 return
         if ( loginInfo == null ) {
             throw new SecurityException("");
         }
 
+        // 2. groupNo, itemNo 추출
         Long groupNo = devLogItemDto.getGroupNo();
         Long itemNo = devLogItemDto.getItemNo();
 
-        if ( itemNo == null ) {
-            DevLogItem item = DevLogItem.of(devLogItemDto);
-        }
-
-
-        DevLogItem originItem = devLogitemRepository.findByDeleteYnAndGroupNo_GroupNoAndItemNo("N", groupNo, itemNo).orElse(null);
-
-        if ( originItem == null ) {
-            throw new RuntimeException("존재하지 않는 게시물입니다.");
-        }
-
+        // 3. group 기본 데이터 조회
         DevLogGroup group = devLogGroupRepository.findById(groupNo).orElse(null);
 
+        // 4. group이 존재하지 않을 때
         if ( group == null ) {
             throw new IllegalArgumentException("존재하지 않는 그룹입니다.");
         }
 
-        originItem.setItemTitle(devLogItemDto.getItemTitle());
-        originItem.setGroupNo(group);
-        originItem.setItemContents(devLogItemDto.getItemContents());
-        originItem.setItemUpdater(loginInfo.getUserMgmtNo());
-        originItem.setItemUpdateDate(LocalDateTime.now());
-        devLogitemRepository.save(originItem);
+        // 5-1. itemNo가 null일 때 : 신규 작성
+        DevLogItem item = null;
+        if ( itemNo == null ) {
+            
+            // 5-1-1. DevLogItem 초기 설정
+            item = DevLogItem.of(devLogItemDto);
+            item.setItemRegistDate(LocalDateTime.now());
+            item.setItemRegister(loginInfo.getUserMgmtNo());
+            item.setItemSortNo(group.getItemList().size()+1L);
+            item.setDeleteYn("N");
+            item.setOpenYn("Y");
+            item.setProgress("Y");
 
-        int delCnt = devLogItemLangRepository.deleteByItemNo_itemNo(itemNo);
-        for ( DevLogItemLangDto itemLangDto : devLogItemDto.getItemLangs() ) {
+        }
+        // 5-2. itemNo가 null이 아닐 때 : 수정
+        else {
+            // 5-2-1. item 기존 데이터 조회
+            item = devLogitemRepository.findByDeleteYnAndGroupNo_GroupNoAndItemNo("N", groupNo, itemNo).orElse(null);
+
+            // 5-2-2. item이 존재하지 않을 때
+            if ( item == null ) {
+                throw new RuntimeException("존재하지 않는 게시물입니다.");
+            }
+
+            // 5-2-5. 변경된 정보 저장
+            item.setItemTitle(devLogItemDto.getItemTitle());
+            item.setItemContents(devLogItemDto.getItemContents());
+            item.setItemUpdater(loginInfo.getUserMgmtNo());
+            item.setItemUpdateDate(LocalDateTime.now());
+
+        }
+
+        // 6. group 설정
+        item.setGroupNo(group);
+        devLogitemRepository.save(item);
+
+        // 7. 사용 언어 초기화
+        devLogItemLangRepository.deleteByItemNo_itemNo(itemNo);
+
+        // 8. 사용 언어 다시 저장
+        for (DevLogItemLangDto itemLangDto : devLogItemDto.getItemLangs()) {
             DevLogLang lang = devLogLangRepository.findById(itemLangDto.getLangId()).orElse(null);
 
-            if ( lang != null ) {
+            if (lang != null) {
                 DevLogItemLang devLogItemLang = new DevLogItemLang();
-                devLogItemLang.setItemNo(originItem);
+                devLogItemLang.setItemNo(item);
                 devLogItemLang.setLangId(lang);
                 devLogItemLangRepository.save(devLogItemLang);
             }
@@ -402,23 +467,24 @@ public class DevLogServiceImpl implements DevLogService {
     public String itemDelete(Long itemNo,HttpServletRequest request) {
         UserDto loginInfo = userService.findUserInfoFromHttpRequest(request);
 
+        // 1. 로그인되지 않았을 때
         if ( loginInfo == null ) {
             throw new SecurityException("");
         }
 
+        // 2. item 조회
         DevLogItem item = devLogitemRepository.findById(itemNo).orElse(null);
-
         if ( item != null ) {
-            int delViewCnt = devLogVisitLogRepository.deleteByItemNo_itemNo(itemNo);
-            int delLikeCnt = devLogLikeRepository.deleteByItemNo_itemNo(itemNo);
-            int delLangCnt = devLogItemLangRepository.deleteByItemNo_itemNo(itemNo);
 
+            // 3. delete flag 변경, 업데이트 유저 정보 설정
+            item.setDeleteYn("Y");
             item.setItemUpdater(loginInfo.getUserMgmtNo());
             item.setItemUpdateDate(LocalDateTime.now());
-            item.setDeleteYn("Y");
             devLogitemRepository.save(item);
         }
 
         return "success";
     }
+
+
 }

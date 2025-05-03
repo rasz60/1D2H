@@ -9,5 +9,5 @@ public interface DevLogLikeRepository extends JpaRepository<DevLogLike, Long> {
     int countByItemIdAndItemType(Long itemId, String itemType);
     int countByItemIdAndItemTypeAndItemLikeUserNo(Long itemId, String itemType, Long itemLikeUserNo);
     Optional<DevLogLike> findByItemIdAndItemTypeAndItemLikeUserNo(Long itemId, String itemType, Long itemLikeUserNo);
-    int deleteByItemNo_itemNo(Long itemNo);
+    int deleteByItemId(Long itemId);
 }
