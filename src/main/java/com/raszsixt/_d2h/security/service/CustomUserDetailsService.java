@@ -1,7 +1,7 @@
 package com.raszsixt._d2h.security.service;
 
-import com.raszsixt._d2h.user.entity.User;
-import com.raszsixt._d2h.user.repository.UserRepository;
+import com.raszsixt._d2h.modules.user.entity.User;
+import com.raszsixt._d2h.modules.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

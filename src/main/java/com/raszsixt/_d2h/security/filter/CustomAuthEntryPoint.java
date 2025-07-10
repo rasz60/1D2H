@@ -1,7 +1,7 @@
 package com.raszsixt._d2h.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.raszsixt._d2h.exceptions.dto.ErrorResponse;
+import com.raszsixt._d2h.global.exceptions.dto.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

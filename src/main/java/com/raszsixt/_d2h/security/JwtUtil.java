@@ -2,14 +2,12 @@ package com.raszsixt._d2h.security;
 
 import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
-import com.raszsixt._d2h.user.dto.LoginResponseDto;
-import com.raszsixt._d2h.user.entity.User;
-import com.raszsixt._d2h.user.repository.UserRepository;
+import com.raszsixt._d2h.modules.user.entity.User;
+import com.raszsixt._d2h.modules.user.repository.UserRepository;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.*;
 

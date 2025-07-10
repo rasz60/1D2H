@@ -17,7 +17,15 @@ import java.time.LocalDateTime;
 @Data
 public class RefreshToken {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(
+            name = "token_seq_generator",
+            sequenceName = "1d2h_refresh_token_seq",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "token_seq_generator"
+    )
     private Long refreshTokenId;
 
     @Column(columnDefinition = "VARCHAR(100)", unique = true)

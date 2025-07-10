@@ -1,7 +1,7 @@
 package com.raszsixt._d2h.security.filter;
 
 import com.raszsixt._d2h.security.JwtUtil;
-import com.raszsixt._d2h.user.entity.User;
+import com.raszsixt._d2h.modules.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
