@@ -21,4 +21,5 @@ public interface UserService {
     public UserDto findUserInfoFromHttpRequest(HttpServletRequest request);
     public String findUserIdFromUserMgmtNo(Long userMgmtNo);
     public Long findUserMgmtNoFromUserId(String userId);
+    public String getEmailAddr(String userId);
 }

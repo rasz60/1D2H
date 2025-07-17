@@ -457,6 +457,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public String getEmailAddr(String userId) {
+        String emailAddr = "";
+        Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn(userId,"N");
+        if ( exsist.isPresent() ) {
+            UserDto loginUser = UserDto.of(exsist.get());
+            emailAddr = loginUser.getUserEmailId() + "@" + loginUser.getUserEmailDomain();
+        }
+        return emailAddr;
+    }
+
+    @Override
     public UserDto findUserInfoFromHttpRequest(HttpServletRequest request) {
         UserDto dto = null;
         Map<String, Object> loginInfo = jwtUtil.getUserIdFromToken(request);

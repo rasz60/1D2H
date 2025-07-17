@@ -76,13 +76,20 @@ public class UserController {
         return ResponseEntity.ok(res);
     }
 
-
     // 회원탈퇴
     @DeleteMapping("/signout")
     public ResponseEntity<?> signout(HttpServletRequest request) {
         String res = userService.signout(request);
         return ResponseEntity.ok(res);
     }
+
+    // 이메일주소 조회
+    @GetMapping("/getEmailAddr/{userId}")
+    public ResponseEntity<?> getEmailAddr(@PathVariable(name = "userId") String userId) {
+        String res = userService.getEmailAddr(userId);
+        return ResponseEntity.ok(res);
+    }
+
     // ADMIN_ONLY
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/admin-only")
