@@ -4,18 +4,16 @@ import com.raszsixt._d2h.modules.devlog.dto.DevLogItemDto;
 import com.raszsixt._d2h.modules.devlog.dto.DevLogReqDto;
 import com.raszsixt._d2h.modules.devlog.service.DevLogService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/dlog")
 public class DevLogController {
 
-    private DevLogService devLogService;
-
-    public DevLogController (DevLogService devLogService) {
-        this.devLogService = devLogService;
-    }
+    private final DevLogService devLogService;
 
     @GetMapping("/groupList")
     public ResponseEntity<?> getGroupList(HttpServletRequest request) {

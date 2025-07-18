@@ -31,6 +31,7 @@ public class UserDto {
         UserDto newDto = new UserDto();
         newDto.setUserMgmtNo(user.getUserMgmtNo());
         newDto.setUserId(user.getUserId());
+        newDto.setUserEmail(user.getUserEmail());
         newDto.setUserEmailId(user.getUserEmail().split("@")[0]);
         newDto.setUserEmailDomain(user.getUserEmail().split("@")[1]);
         newDto.setUserPhone(user.getUserPhone());

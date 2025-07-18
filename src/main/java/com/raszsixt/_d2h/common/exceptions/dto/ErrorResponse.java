@@ -1,4 +1,4 @@
-package com.raszsixt._d2h.global.exceptions.dto;
+package com.raszsixt._d2h.common.exceptions.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

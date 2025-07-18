@@ -55,3 +55,4 @@ spring:
                         enable: true
                     auth: true
                     timeout: 5000
+        pubmail: 1d2h-Admin <1d2hadm@gmail.com>

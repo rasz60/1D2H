@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: "Arial", sans-serif;
+      background-color: #f4f4f4;
+      padding: 30px;
+    }
+    .email-container {
+      background-color: #ffffff;
+      max-width: 600px;
+      margin: 0 auto;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .email-header {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333333;
+      margin-bottom: 20px;
+    }
+    .email-body {
+      font-size: 16px;
+      color: #555555;
+      line-height: 1.6;
+    }
+    .email-from-addr {
+      margin: 1em;
+      padding: 1em;
+      background-color: #f3f3f3;
+      border-radius: 10px;
+    }
+    .email-footer {
+      margin-top: 30px;
+      font-size: 12px;
+      color: #999999;
+      text-align: center;
+    }
+    .email-link-button-box {
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4caf50;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    hr {
+      border: 1px solid #ececec;
+    }
+  </style>
+</head>
+<body>
+<div class="email-container">
+  <div class="email-header">${subject}</div>
+
+  <div class="email-body">
+    <p class="email-from-addr">FROM📨 ${fromAddr}</p>
+    <br />
+    ${body}
+    <br />
+    <br />
+  </div>
+  <hr/>
+  <div class="email-footer">&copy; 2025 1D2H, All rights reserved.</div>
+</div>
+</body>
+</html>

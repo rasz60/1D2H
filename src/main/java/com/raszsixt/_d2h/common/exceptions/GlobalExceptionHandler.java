@@ -1,6 +1,6 @@
-package com.raszsixt._d2h.global.exceptions;
+package com.raszsixt._d2h.common.exceptions;
 
-import com.raszsixt._d2h.global.exceptions.dto.ErrorResponse;
+import com.raszsixt._d2h.common.exceptions.dto.ErrorResponse;
 import io.jsonwebtoken.security.SecurityException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 package com.raszsixt._d2h.modules.user.service;
 
-import com.raszsixt._d2h.global.mail.service.MailService;
+import com.raszsixt._d2h.common.mail.dto.MailDto;
+import com.raszsixt._d2h.common.mail.service.MailService;
 import com.raszsixt._d2h.modules.user.dto.*;
 import com.raszsixt._d2h.modules.user.entity.User;
 import com.raszsixt._d2h.modules.user.repository.UserRepository;
@@ -9,13 +10,13 @@ import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
@@ -33,15 +35,6 @@ public class UserServiceImpl implements UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final SecureRandom secureRandom = new SecureRandom();
     private final MailService mailService;
-
-    public UserServiceImpl(UserRepository userRepository, JwtUtil jwtUtil, AuthenticationManager authenticationManager, RefreshTokenRepository refreshTokenRepository, MailService mailService) {
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
-        this.authenticationManager = authenticationManager;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.mailService = mailService;
-        this.passwordEncoder = new BCryptPasswordEncoder();
-    }
     // 회원가입
     @Override
     public String signup(SignupDto signupDto) throws IllegalArgumentException {
@@ -307,13 +300,9 @@ public class UserServiceImpl implements UserService {
                 }
             }
 
-            String subject = "[1d2h] 이메일 주소로 가입된 아이디 입니다.";
-            String bodyText =  "안녕하세요, 1d2h 입니다.<br/>";
-                   bodyText += "입력하신 이메일 주소로 가입된 아이디 리스트입니다.<br/><br/>";
-                   bodyText += "[1d2h] 홈페이지로 이동하시어 다시 로그인 시도해주시길 바랍니다.<br/><br/>";
-                   bodyText += "감사합니다.";
+            MailDto mailDto = new MailDto(emailAddr, "FIND_ID", userId);
 
-            String result = mailService.sendFindInfoEmail(emailAddr, subject, bodyText, userId);
+            String result = mailService.sendEmail(mailDto);
 
             if ( "S".equals(result) ) {
                 res = "입력하신 이메일로 가입된 ID를 발송하였습니다.";
@@ -338,14 +327,9 @@ public class UserServiceImpl implements UserService {
         if ( userInfo.isPresent() ) {
             String tempPassword = generatedTempPassword(12);
 
-            String subject = "[1d2h] 임시 비밀번호 발급해드립니다.";
-            String bodyText =  "안녕하세요, 1d2h 입니다.<br/>";
-                   bodyText += "입력하신 아이디의 임시 비밀번호가 발급되었습니다.<br/><br/>";
-                   bodyText += "[1d2h] 홈페이지로 이동하시어 다시 로그인 시도해주시고,<br/>";
-                   bodyText += "임시 비밀번호는 반드시 변경하시어 사용해주시길 바랍니다.<br/><br/>";
-                   bodyText += "감사합니다.";
+            MailDto mailDto = new MailDto(emailAddr, "FIND_PW", tempPassword);
 
-            String result = mailService.sendFindInfoEmail(emailAddr, subject, bodyText, tempPassword);
+            String result = mailService.sendEmail(mailDto);
 
             if ( "S".equals(result) ) {
                 User user = userInfo.get();
@@ -461,8 +445,7 @@ public class UserServiceImpl implements UserService {
         String emailAddr = "";
         Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn(userId,"N");
         if ( exsist.isPresent() ) {
-            UserDto loginUser = UserDto.of(exsist.get());
-            emailAddr = loginUser.getUserEmailId() + "@" + loginUser.getUserEmailDomain();
+            emailAddr = exsist.get().getUserEmail();
         }
         return emailAddr;
     }

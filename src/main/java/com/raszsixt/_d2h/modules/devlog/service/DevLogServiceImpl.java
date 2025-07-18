@@ -8,6 +8,7 @@ import com.raszsixt._d2h.modules.user.service.UserService;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class DevLogServiceImpl implements DevLogService {
     private final DevLogGroupRepository devLogGroupRepository;
     private final DevLogItemRepository devLogitemRepository;
@@ -25,24 +27,6 @@ public class DevLogServiceImpl implements DevLogService {
     private final DevLogItemLangRepository devLogItemLangRepository;
     private final DevLogLangRepository devLogLangRepository;
     private final UserService userService;
-
-    public DevLogServiceImpl(DevLogGroupRepository devLogGroupRepository,
-                             DevLogItemRepository devLogitemRepository,
-                             DevLogLikeRepository devLogLikeRepository,
-                             DevLogSubsRepository devLogSubsRepository,
-                             DevLogVisitLogRepository devLogVisitLogRepository,
-                             DevLogItemLangRepository devLogItemLangRepository,
-                             DevLogLangRepository devLogLangRepository,
-                             UserService userService) {
-        this.devLogGroupRepository = devLogGroupRepository;
-        this.devLogitemRepository = devLogitemRepository;
-        this.devLogLikeRepository = devLogLikeRepository;
-        this.devLogSubsRepository = devLogSubsRepository;
-        this.devLogVisitLogRepository = devLogVisitLogRepository;
-        this.devLogItemLangRepository = devLogItemLangRepository;
-        this.devLogLangRepository = devLogLangRepository;
-        this.userService = userService;
-    }
 
     @Override
     public List<DevLogGroupDto> getGroupList(HttpServletRequest request) {
