@@ -49,6 +49,9 @@ public class Menu {
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime menuRegDate;
 
+    @Column(columnDefinition = "INT")
+    private Integer menuSortOrder;
+
     @ManyToOne
     @JoinColumn(name="MENU_REGISTER_ID")
     private User menuRegister;

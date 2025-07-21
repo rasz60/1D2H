@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
-    List<Menu> findByMenuUseYnAndMenuAuthLessThan(String menuUseYn, Integer menuAuth);
+    List<Menu> findByMenuUseYnAndMenuAuthLessThanOrderByMenuSortOrder(String menuUseYn, Integer menuAuth);
+
+    List<Menu> findAllByOrderByMenuSortOrder();
 }

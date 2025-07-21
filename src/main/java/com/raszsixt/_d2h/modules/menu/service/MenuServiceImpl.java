@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.modules.menu.service;
 
+import com.raszsixt._d2h.modules.menu.dto.MenuDto;
 import com.raszsixt._d2h.modules.menu.entity.Menu;
 import com.raszsixt._d2h.modules.menu.repository.MenuRepository;
 import com.raszsixt._d2h.security.JwtUtil;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +33,20 @@ public class MenuServiceImpl implements MenuService {
             userRole = userService.getLoginUserRole(userId);
         }
 
-        return menuRepository.findByMenuUseYnAndMenuAuthLessThan("Y", setMenuAuth(userRole));
+        return menuRepository.findByMenuUseYnAndMenuAuthLessThanOrderByMenuSortOrder("Y", setMenuAuth(userRole));
     }
+
+    @Override
+    public List<Menu> getAllMenus() {
+        return menuRepository.findAllByOrderByMenuSortOrder();
+    }
+
+    @Override
+    public MenuDto getMenuDetails(long menuId) {
+        Optional<Menu> opMenu = menuRepository.findById(menuId);
+        return opMenu.map(menu -> MenuDto.of(menu)).orElse(null);
+    }
+
 
     public int setMenuAuth(String userRole) {
         int menuAuth = 0;

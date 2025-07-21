@@ -1,10 +1,13 @@
 package com.raszsixt._d2h.modules.menu.service;
 
+import com.raszsixt._d2h.modules.menu.dto.MenuDto;
 import com.raszsixt._d2h.modules.menu.entity.Menu;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
 public interface MenuService {
+    List<Menu> getAllMenus();
     List<Menu> getMenus(HttpServletRequest request);
+    MenuDto getMenuDetails(long menuId);
 }
