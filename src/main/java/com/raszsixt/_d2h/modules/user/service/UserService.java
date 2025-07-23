@@ -1,6 +1,7 @@
 package com.raszsixt._d2h.modules.user.service;
 
 import com.raszsixt._d2h.modules.user.dto.*;
+import com.raszsixt._d2h.modules.user.entity.User;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;

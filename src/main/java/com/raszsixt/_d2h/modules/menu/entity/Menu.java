@@ -1,21 +1,21 @@
 package com.raszsixt._d2h.modules.menu.entity;
 
-import com.raszsixt._d2h.modules.user.entity.User;
+import com.raszsixt._d2h.common.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import java.time.LocalDateTime;
-
 @Entity
+@Data
 @Table(name="1D2H_MENU")
 @DynamicInsert
 @DynamicUpdate
 @NoArgsConstructor
-@Data
-public class Menu {
+@EqualsAndHashCode(callSuper = false)
+public class Menu extends BaseEntity {
     @Id
     @SequenceGenerator(
             name = "menu_seq_generator",
@@ -46,20 +46,6 @@ public class Menu {
     @Column(columnDefinition = "VARCHAR(100)")
     private String menuTarget;
 
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime menuRegDate;
-
     @Column(columnDefinition = "INT")
     private Integer menuSortOrder;
-
-    @ManyToOne
-    @JoinColumn(name="MENU_REGISTER_ID")
-    private User menuRegister;
-
-    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime menuUpdateDate;
-
-    @ManyToOne
-    @JoinColumn(name="MENU_UPDATER_ID")
-    private User menuUpdater;
 }

@@ -7,7 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface MenuService {
-    List<Menu> getAllMenus();
+    List<MenuDto> getAllMenus();
     List<Menu> getMenus(HttpServletRequest request);
     MenuDto getMenuDetails(long menuId);
+    String menuReordered(List<MenuDto> menuDtoList, HttpServletRequest request);
+    String updateMenuInfo(MenuDto menuDto, HttpServletRequest request);
 }
