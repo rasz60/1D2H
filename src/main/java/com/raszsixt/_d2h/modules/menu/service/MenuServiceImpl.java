@@ -77,12 +77,17 @@ public class MenuServiceImpl implements MenuService {
         UserDto userDto = userService.findUserInfoFromHttpRequest(request);
         LocalDateTime updateDateTime = LocalDateTime.now();
 
+        boolean updateFlag = menuDto.getMenuId() >= 0;
+
+        if ( menuDto.getMenuId() < 0 ) {
+            menuDto.setMenuId(null);
+        }
         menuDto.setUpdaterNo(userDto.getUserMgmtNo());
         menuDto.setUpdateDate(updateDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
 
         menuRepository.save(Menu.of(menuDto, Menu.class));
 
-        res = "메뉴 정보 수정에 성공했습니다.";
+        res = updateFlag ? "메뉴 정보 수정에 성공했습니다." : "메뉴 등록에 성공했습니다.";
         return res;
     }
 
