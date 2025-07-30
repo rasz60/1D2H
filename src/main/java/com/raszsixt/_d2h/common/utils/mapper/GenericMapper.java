@@ -45,8 +45,9 @@ public class GenericMapper {
 
             if ( dto instanceof BaseDto baseDto && entity instanceof BaseEntity baseEntity ) {
                 baseEntity.setRegisterId(getUserEntity(baseDto.getRegisterNo()));
-                baseEntity.setRegistDate(parseDateTimeStr(baseDto.getRegistDate()));
                 baseEntity.setUpdaterId(getUserEntity(baseDto.getUpdaterNo()));
+
+                baseEntity.setRegistDate(parseDateTimeStr(baseDto.getRegistDate()));
                 baseEntity.setUpdateDate(parseDateTimeStr(baseDto.getUpdateDate()));
             }
 
