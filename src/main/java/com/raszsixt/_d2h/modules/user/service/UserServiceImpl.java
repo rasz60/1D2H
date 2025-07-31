@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.modules.user.service;
 
+import com.raszsixt._d2h.common.base.BaseDto;
 import com.raszsixt._d2h.common.mail.dto.MailDto;
 import com.raszsixt._d2h.common.mail.service.MailService;
 import com.raszsixt._d2h.modules.user.dto.*;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -272,7 +274,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 신규 User 저장
-        Optional<User> user = userRepository.findByUserId(userDto.getUserId());
+        Optional<User> user = userRepository.findByUserIdAndUserSignOutYn(userDto.getUserId(), "N");
         User newUser = User.of(userDto, user.get());
         if ( userDto.getNewUserPwd() != null ) {
             newUser.setUserPwd(passwordEncoder.encode(userDto.getNewUserPwd()));
@@ -377,7 +379,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 5. signout 처리
-        Optional<User> exsist = userRepository.findByUserId(userId);
+        Optional<User> exsist = userRepository.findByUserIdAndUserSignOutYn(userId, "N");
 
         if ( exsist.isEmpty() ) {
             throw new SecurityException("유저 정보를 찾을 수 없습니다.");
@@ -448,6 +450,21 @@ public class UserServiceImpl implements UserService {
             emailAddr = exsist.get().getUserEmail();
         }
         return emailAddr;
+    }
+
+    @Override
+    public List<UserDto> getUserInfo(String type, String keyword) {
+        List<User> userList = new ArrayList<>();
+        if ( "ID".equals(type) ) {
+            userList = userRepository.findByUserIdContains(keyword);
+        } else if ( "EMAIL".equals(type) ) {
+            userList = userRepository.findByUserEmailContains(keyword);
+        } else if ( "PHONE".equals(type) ) {
+            userList = userRepository.findByUserPhoneContains(keyword);
+        } else if ( "ROLE".equals(type) ) {
+            userList = userRepository.findByUserRole(keyword);
+        }
+        return UserDto.of(userList);
     }
 
     @Override

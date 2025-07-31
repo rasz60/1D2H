@@ -12,4 +12,9 @@ public interface MenuService {
     MenuDto getMenuDetails(long menuId);
     String menuReordered(List<MenuDto> menuDtoList, HttpServletRequest request);
     String updateMenuInfo(MenuDto menuDto, HttpServletRequest request);
+    String deleteMenu(long menuId, HttpServletRequest request);
+
+    /*-- UTILITY --*/
+    int setMenuAuth(String userRole);
+    void refineSortOrder();
 }

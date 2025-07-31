@@ -33,4 +33,9 @@ public class MenuController {
     public ResponseEntity<?> updateMenuInfo(@RequestBody MenuDto menuDto, HttpServletRequest request) {
         return ResponseEntity.ok(menuService.updateMenuInfo(menuDto, request));
     }
+
+    @DeleteMapping("/deleteMenu/{menuId}")
+    public ResponseEntity<?> deleteMenu(@PathVariable(name = "menuId") long menuId, HttpServletRequest request) {
+        return ResponseEntity.ok(menuService.deleteMenu(menuId, request));
+    }
 }

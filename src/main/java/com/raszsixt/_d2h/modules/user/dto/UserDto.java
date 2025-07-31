@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -43,5 +44,9 @@ public class UserDto {
         if ( user.getUserBirth() != null )
             newDto.setUserBirth(user.getUserBirth().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")));
         return newDto;
+    }
+
+    public static List<UserDto> of (List<User> userList) {
+        return userList.stream().map(user -> UserDto.of(user)).toList();
     }
 }

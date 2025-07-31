@@ -1,11 +1,11 @@
 package com.raszsixt._d2h.modules.user.service;
 
 import com.raszsixt._d2h.modules.user.dto.*;
-import com.raszsixt._d2h.modules.user.entity.User;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
+import java.util.List;
 
 public interface UserService {
     public String signup(SignupDto signupDto) throws IllegalArgumentException;
@@ -23,4 +23,5 @@ public interface UserService {
     public String findUserIdFromUserMgmtNo(Long userMgmtNo);
     public Long findUserMgmtNoFromUserId(String userId);
     public String getEmailAddr(String userId);
+    public List<UserDto> getUserInfo(String type, String keyword);
 }

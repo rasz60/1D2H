@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -87,6 +89,11 @@ public class UserController {
     public ResponseEntity<?> getEmailAddr(@PathVariable(name = "userId") String userId) {
         String res = userService.getEmailAddr(userId);
         return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/getUserInfo/{type}/{keyword}")
+    public ResponseEntity<?> getUserInfo(@PathVariable(name = "type") String type, @PathVariable(name = "keyword") String keyword){
+        return ResponseEntity.ok(userService.getUserInfo(type, keyword));
     }
 
     // ADMIN_ONLY

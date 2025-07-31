@@ -27,10 +27,10 @@ public class GenericMapper {
             if ( dto instanceof BaseDto baseDto && entity instanceof BaseEntity baseEntity ) {
                 baseDto.setRegisterId(baseEntity.getRegisterId().getUserId());
                 baseDto.setRegisterNo(baseEntity.getRegisterId().getUserMgmtNo());
-                baseDto.setRegistDate(baseEntity.getRegistDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+                baseDto.setRegistDate(baseEntity.getRegistDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS")));
                 baseDto.setUpdaterId(baseEntity.getUpdaterId().getUserId());
                 baseDto.setUpdaterNo(baseEntity.getUpdaterId().getUserMgmtNo());
-                baseDto.setUpdateDate(baseEntity.getUpdateDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+                baseDto.setUpdateDate(baseEntity.getUpdateDate().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS")));
             }
 
             return dto;
@@ -66,6 +66,6 @@ public class GenericMapper {
         return userRepository.findById(userMgmtNo).orElse(null);
     }
     public static LocalDateTime parseDateTimeStr(String dateTimeStr) {
-        return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"));
+        return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss.SSS"));
     }
 }

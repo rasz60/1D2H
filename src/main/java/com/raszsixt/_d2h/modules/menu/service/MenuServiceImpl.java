@@ -11,7 +11,9 @@ import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.modules.user.service.UserService;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class MenuServiceImpl implements MenuService {
     private final MenuRepository menuRepository;
@@ -84,17 +87,33 @@ public class MenuServiceImpl implements MenuService {
             menuDto.setMenuId(null);
             menuDto.setRegisterNo(userDto.getUserMgmtNo());
             menuDto.setRegistDate(updateDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
+            menuDto.setMenuSortOrder(9999);
         }
         menuDto.setUpdaterNo(userDto.getUserMgmtNo());
         menuDto.setUpdateDate(updateDateTime.format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")));
         menuDto.setMenuSortOrder(menuRepository.countBy().intValue() + 1);
         menuRepository.save(Menu.of(menuDto, Menu.class));
 
+        refineSortOrder();
+
         res = updateFlag ? "메뉴 정보 수정에 성공했습니다." : "메뉴 등록에 성공했습니다.";
         return res;
     }
 
+    public String deleteMenu(long menuId, HttpServletRequest request) {
+        String res = "";
+        try {
+            menuRepository.deleteById(menuId);
+            refineSortOrder();
+            res = "메뉴 삭제에 성공했습니다.";
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            res = "일시적인 오류로 메뉴 삭제에 실패했습니다.";
+        }
+        return res;
+    }
 
+    /*-- UTILITY --*/
 
     public int setMenuAuth(String userRole) {
         int menuAuth = 0;
@@ -108,5 +127,13 @@ public class MenuServiceImpl implements MenuService {
         }
 
         return menuAuth;
+    }
+    @Transactional
+    public void refineSortOrder() {
+        List<Menu> menuList = menuRepository.findAllByOrderByMenuSortOrder();
+        for ( int i = 0; i < menuList.size(); i++ ) {
+            Menu menu = menuList.get(i);
+            menu.setMenuSortOrder(i + 1);
+        };
     }
 }
