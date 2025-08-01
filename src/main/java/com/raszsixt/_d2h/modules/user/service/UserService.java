@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.modules.user.service;
 
+import com.raszsixt._d2h.common.search.dto.SearchDto;
 import com.raszsixt._d2h.modules.user.dto.*;
 import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,5 +24,7 @@ public interface UserService {
     public String findUserIdFromUserMgmtNo(Long userMgmtNo);
     public Long findUserMgmtNoFromUserId(String userId);
     public String getEmailAddr(String userId);
-    public List<UserDto> getUserInfo(String type, String keyword);
+    public List<UserDto> getUserInfo(SearchDto searchDto);
+    public String updateUserRole(String type, List<Long> targetUser, HttpServletRequest request);
+    public String adminUserSignOut(List<Long> targetUser, HttpServletRequest request);
 }

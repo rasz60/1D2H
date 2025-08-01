@@ -3,6 +3,8 @@ package com.raszsixt._d2h.modules.user.service;
 import com.raszsixt._d2h.common.base.BaseDto;
 import com.raszsixt._d2h.common.mail.dto.MailDto;
 import com.raszsixt._d2h.common.mail.service.MailService;
+import com.raszsixt._d2h.common.search.dto.SearchDto;
+import com.raszsixt._d2h.common.search.specification.SearchSpecification;
 import com.raszsixt._d2h.modules.user.dto.*;
 import com.raszsixt._d2h.modules.user.entity.User;
 import com.raszsixt._d2h.modules.user.repository.UserRepository;
@@ -13,6 +15,7 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -453,18 +456,43 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getUserInfo(String type, String keyword) {
+    public List<UserDto> getUserInfo(SearchDto searchDto) {
         List<User> userList = new ArrayList<>();
-        if ( "ID".equals(type) ) {
-            userList = userRepository.findByUserIdContains(keyword);
-        } else if ( "EMAIL".equals(type) ) {
-            userList = userRepository.findByUserEmailContains(keyword);
-        } else if ( "PHONE".equals(type) ) {
-            userList = userRepository.findByUserPhoneContains(keyword);
-        } else if ( "ROLE".equals(type) ) {
-            userList = userRepository.findByUserRole(keyword);
+        if ( !"".equals(searchDto.getSortColumn()) ) {
+            Sort sort = Sort.by("DESC".equals(searchDto.getSort()) ? Sort.Direction.DESC : Sort.Direction.ASC, searchDto.getSortColumn());
+            userList = userRepository.findAll(SearchSpecification.searchWiths(searchDto), sort);
+        } else {
+            userList = userRepository.findAll(SearchSpecification.searchWiths(searchDto));
         }
         return UserDto.of(userList);
+    }
+
+    @Override
+    public String updateUserRole(String type, List<Long> targetUser, HttpServletRequest request) {
+        String res = "";
+        UserDto userDto = findUserInfoFromHttpRequest(request);
+        int count = 0;
+        if ( userDto != null ) {
+            for (Long userMgmtNo : targetUser) {
+                count += userRepository.updateUserRole(userMgmtNo, "admin".equals(type) ? "ROLE_ADMIN" : "ROLE_USER", userDto.getUserMgmtNo());
+            };
+        }
+        res = count + "건의 회원정보 수정이 완료되었습니다.";
+        return res;
+    }
+
+    @Override
+    public String adminUserSignOut(List<Long> targetUser, HttpServletRequest request) {
+        String res = "";
+        UserDto userDto = findUserInfoFromHttpRequest(request);
+        int count = 0;
+        if ( userDto != null ) {
+            for (Long userMgmtNo : targetUser) {
+                count += userRepository.updateUserSignOut(userMgmtNo, userDto.getUserMgmtNo());
+            };
+        }
+        res = count + "건의 회원이 강제 탈퇴 처리되었습니다.";
+        return res;
     }
 
     @Override

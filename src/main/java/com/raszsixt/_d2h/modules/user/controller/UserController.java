@@ -1,5 +1,6 @@
 package com.raszsixt._d2h.modules.user.controller;
 
+import com.raszsixt._d2h.common.search.dto.SearchDto;
 import com.raszsixt._d2h.modules.user.dto.*;
 import com.raszsixt._d2h.modules.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,9 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,10 +90,17 @@ public class UserController {
         String res = userService.getEmailAddr(userId);
         return ResponseEntity.ok(res);
     }
-
-    @GetMapping("/getUserInfo/{type}/{keyword}")
-    public ResponseEntity<?> getUserInfo(@PathVariable(name = "type") String type, @PathVariable(name = "keyword") String keyword){
-        return ResponseEntity.ok(userService.getUserInfo(type, keyword));
+    @PostMapping("/getUserInfo")
+    public ResponseEntity<?> getUserInfo(@RequestBody SearchDto searchDto){
+        return ResponseEntity.ok(userService.getUserInfo(searchDto));
+    }
+    @PostMapping("/updateUserRole/{type}")
+    public ResponseEntity<?> updateUserRole(@PathVariable(name = "type") String type, @RequestBody List<Long> targetUser, HttpServletRequest request){
+        return ResponseEntity.ok(userService.updateUserRole(type, targetUser, request));
+    }
+    @PostMapping("/adminUserSignOut")
+    public ResponseEntity<?> adminUserSignOut(@RequestBody List<Long> targetUser, HttpServletRequest request){
+        return ResponseEntity.ok(userService.adminUserSignOut(targetUser, request));
     }
 
     // ADMIN_ONLY

@@ -86,6 +86,10 @@ public class User implements UserDetails {
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime updateDate;
 
+    @ManyToOne
+    @JoinColumn(name="UPDATER_ID")
+    private User updaterId;
+
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDateTime userExpiredDate;
 
