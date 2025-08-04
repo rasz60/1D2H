@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface MenuService {
     List<MenuDto> getAllMenus();
-    List<Menu> getMenus(HttpServletRequest request);
+    List<MenuDto> getMenus(HttpServletRequest request);
     MenuDto getMenuDetails(long menuId);
     String menuReordered(List<MenuDto> menuDtoList, HttpServletRequest request);
     String updateMenuInfo(MenuDto menuDto, HttpServletRequest request);

@@ -30,7 +30,7 @@ public class MenuServiceImpl implements MenuService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     @Override
-    public List<Menu> getMenus(HttpServletRequest request) {
+    public List<MenuDto> getMenus(HttpServletRequest request) {
         String userId = null;
         String token = jwtUtil.resolveAccessToken(request);
 
@@ -43,7 +43,7 @@ public class MenuServiceImpl implements MenuService {
             userRole = userService.getLoginUserRole(userId);
         }
 
-        return menuRepository.findByMenuUseYnAndMenuAuthLessThanOrderByMenuSortOrder("Y", setMenuAuth(userRole));
+        return MenuDto.ofList(menuRepository.findByMenuUseYnAndMenuAuthLessThanOrderByMenuSortOrder("Y", setMenuAuth(userRole)), MenuDto.class);
     }
 
     @Override
