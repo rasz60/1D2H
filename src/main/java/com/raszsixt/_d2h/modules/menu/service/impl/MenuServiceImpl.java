@@ -1,10 +1,11 @@
-package com.raszsixt._d2h.modules.menu.service;
+package com.raszsixt._d2h.modules.menu.service.impl;
 
 import com.raszsixt._d2h.common.utils.mapper.GenericMapper;
 import com.raszsixt._d2h.modules.devlog.entity.DevLogGroup;
 import com.raszsixt._d2h.modules.menu.dto.MenuDto;
 import com.raszsixt._d2h.modules.menu.entity.Menu;
 import com.raszsixt._d2h.modules.menu.repository.MenuRepository;
+import com.raszsixt._d2h.modules.menu.service.MenuService;
 import com.raszsixt._d2h.modules.user.dto.UserDto;
 import com.raszsixt._d2h.modules.user.repository.UserRepository;
 import com.raszsixt._d2h.security.JwtUtil;

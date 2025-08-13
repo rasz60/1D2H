@@ -1,4 +1,4 @@
-package com.raszsixt._d2h.modules.user.service;
+package com.raszsixt._d2h.modules.user.service.impl;
 
 import com.raszsixt._d2h.common.base.BaseDto;
 import com.raszsixt._d2h.common.mail.dto.MailDto;
@@ -8,6 +8,7 @@ import com.raszsixt._d2h.common.search.specification.SearchSpecification;
 import com.raszsixt._d2h.modules.user.dto.*;
 import com.raszsixt._d2h.modules.user.entity.User;
 import com.raszsixt._d2h.modules.user.repository.UserRepository;
+import com.raszsixt._d2h.modules.user.service.UserService;
 import com.raszsixt._d2h.security.JwtUtil;
 import com.raszsixt._d2h.security.entity.RefreshToken;
 import com.raszsixt._d2h.security.repository.RefreshTokenRepository;

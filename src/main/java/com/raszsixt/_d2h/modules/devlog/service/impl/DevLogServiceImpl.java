@@ -1,8 +1,9 @@
-package com.raszsixt._d2h.modules.devlog.service;
+package com.raszsixt._d2h.modules.devlog.service.impl;
 
 import com.raszsixt._d2h.modules.devlog.dto.*;
 import com.raszsixt._d2h.modules.devlog.entity.*;
 import com.raszsixt._d2h.modules.devlog.repository.*;
+import com.raszsixt._d2h.modules.devlog.service.DevLogService;
 import com.raszsixt._d2h.modules.user.dto.UserDto;
 import com.raszsixt._d2h.modules.user.service.UserService;
 import io.jsonwebtoken.security.SecurityException;
