@@ -1,18 +1,27 @@
-# Dockerfile
+# stage 1 : Gradle Build
+FROM gradle:8.3-jdk17 AS builder
+WORKDIR /app
+
+## COPY Gradle Setting
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+
+## COPY source
+COPY src ./src
+
+## Build (except test)
+RUN gradle clean build -x test
+
+# stage 2 : RUNTIME
 FROM eclipse-temurin:17-jdk-alpine
+WORKDIR /app
 
-# Application JAR 복사
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
+## COPY build .jar
+COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Port (Fly.io)
+## PORT
 ENV PORT=8079
 EXPOSE 8079
 
-# RUN
-ENTRYPOINT["java", "-Xms128m", "-Xms512m", "-jar", "/app.jar"]
-
-#WORKDIR /1d2h
-#COPY target/*.jar 1d2h.jar
-#EXPOSE 8079
-#CMD ["java", "-jar", "1d2h.jar"]
+## RUN
+ENTRYPOINT ["java", "-Xms128m", "-Xms512m", ".jar", "/app.jar"]
